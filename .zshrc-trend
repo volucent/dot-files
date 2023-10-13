@@ -100,6 +100,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 . "$HOME/.asdf/asdf.sh"
+alias clip="xclip -selection clipboard"
 alias webstorm="nohup /opt/WebStorm-231.9011.35/bin/webstorm.sh . >/dev/null 2>&1 &"
 alias start-dockerd="systemctl --user start docker-desktop"
 alias docker-compose="echo 'use docker compose instead of docker-compose'"
@@ -115,3 +116,5 @@ alias kpn="kubectl config view --minify | grep namespace | awk -F' ' '{print $2}
 export VISUAL=vim
 export EDITOR="$VISUAL"
 export PATH=$PATH:/usr/local/go/bin
+
+
