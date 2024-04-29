@@ -125,6 +125,7 @@ kn() {
   if [ -z "$1" ]; then
     echo "Usage: kn <namespace> [<cluster>]"
     echo "Please provide the namespace (production, staging, qa, qa-staging)."
+    kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'
     return 1
   fi
 
