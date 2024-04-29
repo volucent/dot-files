@@ -101,20 +101,66 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 . "$HOME/.asdf/asdf.sh"
 alias clip="xclip -selection clipboard"
-alias webstorm="nohup /opt/WebStorm-231.9011.35/bin/webstorm.sh . >/dev/null 2>&1 &"
+alias webstorm="nohup /opt/WebStorm-233.14015.89/bin/webstorm.sh . >/dev/null 2>&1 &"
 alias start-dockerd="systemctl --user start docker-desktop"
 alias docker-compose="echo 'use docker compose instead of docker-compose'"
-alias pycharm="nohup /opt/pycharm-community-2023.1.4/bin/pycharm.sh . >/dev/null 2>&1 &"
+alias postman="nohup /opt/Postman/Postman . >/dev/null 2>&1 &"
+# alias pycharm="nohup /opt/pycharm-community-2023.1.4/bin/pycharm.sh . >/dev/null 2>&1 &"
 alias gdsbs="git config --global delta.side-by-side"
-alias dlv="~/go/bin/dlv"
-# alias for find case sensitive : find . -type f -exec grep -l "qwe" {} + 
-alias prism="/home/pasha/repos/heypros/hey-pros-api/node_modules/.bin/prism"
+# alias dlv="~/go/bin/dlv"
+# alias for find case sensitive : find . -type f -exec grep -l "qwe" {} +
+# alias prism="/home/pasha/repos/heypros/hey-pros-api/node_modules/.bin/prism"
 alias pp="npx pino-pretty -l -t "SYS:HH:MM:ss""
-alias kpn="kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'"
+# alias kpn="kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'"
 
 # set default text editor to vim
 export VISUAL=vim
 export EDITOR="$VISUAL"
-export PATH=$PATH:/usr/local/go/bin
+# export PATH=$PATH:/usr/local/go/bin[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+export PATH="/opt/fluent-bit/bin:$PATH"
 
 
+kn() {
+  # Check if the namespace argument is provided
+  if [ -z "$1" ]; then
+    echo "Usage: kn <namespace> [<cluster>]"
+    echo "Please provide the namespace (production, staging, qa, qa-staging)."
+    return 1
+  fi
+
+    # Check if the cluster argument is provided
+  if [ -n "$2" ]; then
+    CLUSTER="$2"
+    echo "doctl --context "${CLUSTER}" kubernetes cluster kubeconfig save "${CLUSTER}""
+    echo ""
+    doctl --context "$2" kubernetes cluster kubeconfig save "$2"
+    echo ""
+    echo "kubectl config set-context --current --namespace ${CLUSTER}-${NAMESPACE}"
+    echo ""
+    kubectl config set-context --current --namespace "${CLUSTER}-${NAMESPACE}"
+    fi
+
+  # Check if the provided namespace is valid
+  case $1 in
+    production|staging|qa|qa-staging)
+      NAMESPACE="$1"
+      ;;
+    *)
+      echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging."
+      return 1
+      ;;
+  esac
+
+
+
+
+}
+
+
+fin-id() {
+  if [ -z "$1" ]; then
+    echo "no args"
+    return 1
+  fi
+  curl https://finance-platform-api.birdsdontexist.com/debug/hashid/"$1" | jq .id
+}
