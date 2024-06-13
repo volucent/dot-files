@@ -119,42 +119,49 @@ export EDITOR="$VISUAL"
 # export PATH=$PATH:/usr/local/go/bin[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
 export PATH="/opt/fluent-bit/bin:$PATH"
 
-
 kn() {
-  # Check if the namespace argument is provided
-  if [ -z "$1" ]; then
+  if [ "$#" -eq 0 ]; then
+    kubectl config view --minify | grep current-context
+    kubectl config view --minify | grep namespace 
     echo "Usage: kn <namespace> [<cluster>]"
     echo "Please provide the namespace (production, staging, qa, qa-staging)."
-    kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'
     return 1
-  fi
-
-    # Check if the cluster argument is provided
-  if [ -n "$2" ]; then
+  elif [ "$#" -eq 2 ]; then
+    NAMESPACE="$1"
     CLUSTER="$2"
-    echo "doctl --context "${CLUSTER}" kubernetes cluster kubeconfig save "${CLUSTER}""
+    case $1 in
+      production|staging|qa|qa-staging)
+        ;;
+      *)
+        echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging."
+        return 1
+        ;;
+    esac
+    echo "doctl --context ${CLUSTER} kubernetes cluster kubeconfig save ${CLUSTER}"
     echo ""
     doctl --context "$2" kubernetes cluster kubeconfig save "$2"
     echo ""
     echo "kubectl config set-context --current --namespace ${CLUSTER}-${NAMESPACE}"
     echo ""
     kubectl config set-context --current --namespace "${CLUSTER}-${NAMESPACE}"
-    fi
-
-  # Check if the provided namespace is valid
-  case $1 in
-    production|staging|qa|qa-staging)
-      NAMESPACE="$1"
-      ;;
-    *)
-      echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging."
-      return 1
-      ;;
-  esac
-
-
-
-
+    return 1
+  elif [ "$#" -eq 1 ]; then
+    NAMESPACE="$1"
+    # case $1 in
+    #   production|staging|qa|qa-staging)
+    #     ;;
+    #   *)
+    #     echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging."
+    #     return 1
+    #     ;;
+    # esac
+    echo "kubectl config set-context --current --namespace ${NAMESPACE}"
+    echo ""
+    kubectl config set-context --current --namespace "${NAMESPACE}"
+    return 1
+  else
+    echo "Invalid number of arguments"
+  fi
 }
 
 
@@ -164,4 +171,34 @@ fin-id() {
     return 1
   fi
   curl https://finance-platform-api.birdsdontexist.com/debug/hashid/"$1" | jq .id
+}
+
+fin-hashid() {
+  if [ -z "$1" ]; then
+    echo "no args"
+    return 1
+  fi
+  curl https://finance-platform-api.birdsdontexist.com/debug/id/"$1" | jq .hashid
+}
+
+fin-reupload() {
+  if [ -z "$1" ]; then
+    echo "reupload no args"
+    return 1
+  fi
+  
+  # Get the hash ID
+  hashid=$(curl -s https://finance-platform-api.birdsdontexist.com/debug/id/"$1" | jq -r .hashid)
+  
+  # Check if hashid is empty
+  if [ -z "$hashid" ]; then
+    echo "Failed to get hash ID"
+    return 1
+  fi
+  
+  # Reupload using the hash ID
+  response=$(curl -s https://finance-platform-api.birdsdontexist.com/debug/pave/cKZ1M8erKUjx6y5srVqPacCLY/transactionsUpload/"$hashid")
+  
+  # Output the response
+  echo "$response"
 }
