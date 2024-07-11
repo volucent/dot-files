@@ -164,13 +164,26 @@ kn() {
   fi
 }
 
+kn-seal() {
+  if [ -z "$1" ]; then
+    echo "no args"
+    return 1
+  fi
+  echo -n "$1" | kubeseal --controller-name=sealed-secrets --controller-namespace=sealed-secrets --scope cluster-wide --raw | clip
+}
+
+fin-v() {
+  API_URL=$(k get configmap finance-platform -o json | jq .data.API_URL -r)
+  echo $API_URL
+  curl $API_URL
+}
 
 fin-id() {
   if [ -z "$1" ]; then
     echo "no args"
     return 1
   fi
-  curl https://finance-platform-api.birdsdontexist.com/debug/hashid/"$1" | jq .id
+  curl https://finance-platform-api.birdsdontexist.com/debug/hashid/"$1" | jq .id -r | clip
 }
 
 fin-hashid() {
@@ -178,7 +191,7 @@ fin-hashid() {
     echo "no args"
     return 1
   fi
-  curl https://finance-platform-api.birdsdontexist.com/debug/id/"$1" | jq .hashid
+  curl https://finance-platform-api.birdsdontexist.com/debug/id/"$1" | jq .hashid -r | clip
 }
 
 fin-reupload() {
@@ -198,6 +211,19 @@ fin-reupload() {
   
   # Reupload using the hash ID
   response=$(curl -s https://finance-platform-api.birdsdontexist.com/debug/pave/cKZ1M8erKUjx6y5srVqPacCLY/transactionsUpload/"$hashid")
+  
+  # Output the response
+  echo "$response"
+}
+
+fin-reupload-hash() {
+  if [ -z "$1" ]; then
+    echo "reupload no args"
+    return 1
+  fi
+  
+  # Reupload using the hash ID
+  response=$(curl -s https://finance-platform-api.birdsdontexist.com/debug/pave/cKZ1M8erKUjx6y5srVqPacCLY/transactionsUpload/"$1")
   
   # Output the response
   echo "$response"
