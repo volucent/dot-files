@@ -8,7 +8,11 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="dieter"
+# ZSH_THEME="jonathan"
+# ZSH_THEME="philips"
+# ZSH_THEME="pmcgee"
+ZSH_THEME="frisk"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -38,7 +42,7 @@ ZSH_THEME="robbyrussell"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -99,9 +103,15 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# ASDF
 . "$HOME/.asdf/asdf.sh"
+fpath=($HOME/.asdf/completions $fpath)
+autoload -Uz compinit && compinit
+
 alias clip="xclip -selection clipboard"
-alias webstorm="nohup /opt/WebStorm-233.14015.89/bin/webstorm.sh . >/dev/null 2>&1 &"
+alias webstorm="nohup /opt/WebStorm-243.25659.40/bin/webstorm . >/dev/null 2>&1 &"
+# alias webstorm="nohup /opt/WebStorm-243.25659.40/bin/webstorm.sh . >/dev/null 2>&1 &"
 alias start-dockerd="systemctl --user start docker-desktop"
 alias docker-compose="echo 'use docker compose instead of docker-compose'"
 alias postman="nohup /opt/Postman/Postman . >/dev/null 2>&1 &"
@@ -111,13 +121,39 @@ alias gdsbs="git config --global delta.side-by-side"
 # alias for find case sensitive : find . -type f -exec grep -l "qwe" {} +
 # alias prism="/home/pasha/repos/heypros/hey-pros-api/node_modules/.bin/prism"
 alias pp="npx pino-pretty -l -t "SYS:HH:MM:ss""
+# alias pp='while IFS= read -r line; do echo "$line" | jq . 2>/dev/null || echo "$line"; done'
+
 # alias kpn="kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'"
+alias set-qa="git branch -f qa HEAD && git push origin --delete qa && git push origin qa"
 
 # set default text editor to vim
 export VISUAL=vim
 export EDITOR="$VISUAL"
 # export PATH=$PATH:/usr/local/go/bin[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
 export PATH="/opt/fluent-bit/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin"
+
+autoload -Uz add-zsh-hook
+
+_kitty_precmd_title() {
+  [[ "$TERM" == "xterm-kitty" ]] || return
+  local short_dir=${(%):-%1~}
+  printf '\e]1;%s\a' "$short_dir"
+  printf '\e]2;%s\a' "$PWD"
+}
+
+_kitty_preexec_title() {
+  [[ "$TERM" == "xterm-kitty" ]] || return
+  local cmd=${1%%$'\n'*}
+  cmd=${cmd[1,80]}
+  printf '\e]2;%s\a' "$cmd"
+}
+
+add-zsh-hook precmd _kitty_precmd_title
+add-zsh-hook preexec _kitty_preexec_title
+
+# codex installed via npm, npm installed via asdf, so this alias is to bypass shims and ignore asdf tool versions.
+alias codexg='/home/pasha/.asdf/installs/nodejs/20.8.0/bin/codex'
 
 kn() {
   if [ "$#" -eq 0 ]; then
@@ -130,10 +166,10 @@ kn() {
     NAMESPACE="$1"
     CLUSTER="$2"
     case $1 in
-      production|staging|qa|qa-staging)
+      production|staging|qa|qa-staging|review)
         ;;
       *)
-        echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging."
+        echo "Invalid namespace. Please choose from: production, staging, qa, qa-staging, review."
         return 1
         ;;
     esac
@@ -172,8 +208,43 @@ kn-seal() {
   echo -n "$1" | kubeseal --controller-name=sealed-secrets --controller-namespace=sealed-secrets --scope cluster-wide --raw | clip
 }
 
-fin-v() {
-  API_URL=$(k get configmap finance-platform -o json | jq .data.API_URL -r)
+fin-secrets-name() {
+  kubectl get secret --no-headers -o custom-columns=":metadata.name" | grep ^finance-platform-api
+}
+
+# Function to get a specific key from the finance-platform-api secret
+fin-secret-decode() {
+  local secret_name secret_key secret_value
+
+  # Get the secret name using fin-secrets-name
+  secret_name=$(fin-secrets-name)
+  if [[ -z "$secret_name" ]]; then
+    echo "Error: Could not find finance-platform-api secret." >&2
+    return 1
+  fi
+
+  # Get the secretKey from the argument
+  secret_key=$1
+  if [[ -z "$secret_key" ]]; then
+    echo "Error: No secretKey argument provided. Usage: fin-get-secret-key <secretKey>" >&2
+    return 1
+  fi
+
+  # Fetch the secret value for the provided key
+  secret_value=$(kubectl get secret "$secret_name" -o json | jq -r ".data[\"$secret_key\"]")
+  if [[ "$secret_value" == "null" || -z "$secret_value" ]]; then
+    echo "Error: Key '$secret_key' not found in secret '$secret_name'." >&2
+    return 1
+  fi
+
+  # Decode the base64 value
+  echo "$secret_value" | base64 --decode
+  echo
+}
+
+
+hp-v() {
+  API_URL=$(k get configmap hey-pros -o json | jq .data.API_URL -r)
   echo $API_URL
   curl $API_URL
 }
@@ -228,3 +299,5 @@ fin-reupload-hash() {
   # Output the response
   echo "$response"
 }
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+export PATH="$HOME/.local/bin:$PATH"
