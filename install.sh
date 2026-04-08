@@ -22,6 +22,12 @@ link() {
 
 echo "Installing dotfiles..."
 
+# Fonts
+echo "Installing fonts..."
+mkdir -p ~/.local/share/fonts
+cp "$DOTFILES"/fonts/intel-one-mono/*.ttf ~/.local/share/fonts/
+fc-cache -f
+
 # Kitty
 link kitty/kitty.conf ~/.config/kitty/kitty.conf
 
