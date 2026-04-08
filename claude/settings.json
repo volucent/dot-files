@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(glab mr diff:*)"
+      "Bash(glab mr diff:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ]
   },
   "model": "opus[1m]",
