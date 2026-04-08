@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(glab mr diff:*)"
+    ]
+  },
+  "model": "opus[1m]",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": []
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "effortLevel": "high",
+  "skipAutoPermissionPrompt": true
+}
