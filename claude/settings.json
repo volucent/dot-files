@@ -11,7 +11,12 @@
     "Stop": [
       {
         "matcher": "",
-        "hooks": []
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send -u normal 'Claude Code' 'Waiting for your response' && printf '\\a'"
+          }
+        ]
       }
     ]
   },
