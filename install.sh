@@ -34,6 +34,8 @@ link kitty/kitty.conf ~/.config/kitty/kitty.conf
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
+link claude/notify-input.sh ~/.claude/notify-input.sh
+link claude/session-name.sh ~/.claude/session-name.sh
 mkdir -p ~/.claude/skills/weekly-report
 link claude/skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
 

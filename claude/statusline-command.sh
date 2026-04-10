@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 input=$(cat)
+
+# Session name (cute word combo)
+session_id=$(echo "$input" | jq -r '.session_id // empty')
+if [ -n "$session_id" ]; then
+  session_name=$(bash "$SCRIPT_DIR/session-name.sh" "$session_id")
+else
+  session_name=""
+fi
 
 # Working directory (basename only)
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // empty')
@@ -55,8 +64,9 @@ else
   model_effort=""
 fi
 
-# Assemble: dir[branch*] ctx cost model.effort
+# Assemble: session dir[branch*] ctx cost model.effort
 parts=()
+[ -n "$session_name" ] && parts+=("$session_name")
 loc="${dir_str}${branch_str}"
 [ -n "$loc"          ] && parts+=("$loc")
 [ -n "$ctx_str"      ] && parts+=("$ctx_str")
