@@ -14,7 +14,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "notify-send -u normal 'Claude Code' 'Waiting for your response' && printf '\\a'"
+            "command": "bash ~/.claude/notify-input.sh"
           }
         ]
       }
