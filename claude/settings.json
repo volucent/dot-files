@@ -6,7 +6,6 @@
       "Bash(git add:*)"
     ]
   },
-  "model": "opus[1m]",
   "hooks": {
     "Stop": [
       {
