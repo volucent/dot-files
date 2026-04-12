@@ -1,2 +1,58 @@
-model = "o3"
-approval_policy = "on-request"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+personality = "pragmatic"
+
+[projects."/home/pasha/repos/finance-platform"]
+trust_level = "trusted"
+
+[projects."/home/pasha"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/finance-platform/finance-platform-api"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/finance-platform/flux"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/finance-platform/finance-platform-ui"]
+trust_level = "trusted"
+
+[projects."/home/pasha/.codex/skills"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/volucent/dot-files"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/finance-platform/finance-project-wiki"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/second/finance-platform-api"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/second/finance-platform/finance-platform-api"]
+trust_level = "trusted"
+
+[projects."/home/pasha/repos/volucent/orcka"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[mcp_servers.openaiDeveloperDocs.tools.search_openai_docs]
+approval_mode = "approve"
+
+[mcp_servers.openaiDeveloperDocs.tools.fetch_openai_doc]
+approval_mode = "approve"
+
+[tui]
+terminal_title = ["spinner", "project"]
+theme = "ansi"
+
+[features]
+codex_hooks = true

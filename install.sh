@@ -39,4 +39,11 @@ link claude/session-name.sh ~/.claude/session-name.sh
 mkdir -p ~/.claude/skills/weekly-report
 link claude/skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
 
+# Codex
+link codex/hooks.json ~/.codex/hooks.json
+link codex/notify-input.sh ~/.codex/notify-input.sh
+link codex/session-name.sh ~/.codex/session-name.sh
+mkdir -p ~/.codex/skills/weekly-report
+link codex/skills/weekly-report/SKILL.md ~/.codex/skills/weekly-report/SKILL.md
+
 echo "Done."
