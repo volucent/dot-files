@@ -35,9 +35,9 @@ Output using markdown
 ```
 *Week of <Mon DD - Mon DD>*
 _Repository Title_
-• <bullet>
-• <bullet>
-• <bullet>
+<entry>
+<entry>
+<entry>
 ```
 
 Example 
@@ -46,15 +46,15 @@ Example
 Jan 1 - Jan 7
 
 Emailing Platform
-- Migrated psql subscription tables to small int channel ids for future-proofing
-- Implemented channel tuples on psql emails table + backfilled
+Migrated psql subscription tables to small int channel ids for future-proofing
+Implemented channel tuples on psql emails table + backfilled
 
 Marketing Platform
-- Worked with on simplifying prisma 7 + pglite setup
-- Fixed new repayment orchestration logic to correctly handle M-Th
+Worked with on simplifying prisma 7 + pglite setup
+Fixed new repayment orchestration logic to correctly handle M-Th
 
 General
-- Debugged stripe scraper
+Debugged stripe scraper
 ```
 
 Rules:
