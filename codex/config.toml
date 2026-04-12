@@ -51,6 +51,7 @@ approval_mode = "approve"
 approval_mode = "approve"
 
 [tui]
+alternate_screen = "never"
 terminal_title = ["spinner", "project"]
 theme = "ansi"
 
