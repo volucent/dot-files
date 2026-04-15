@@ -1,9 +1,39 @@
 {
   "permissions": {
     "allow": [
-      "Bash(glab mr diff:*)",
+      "Bash(awk *)",
+      "Bash(cat *)",
+      "Bash(cut *)",
+      "Bash(diff *)",
+      "Bash(echo *)",
+      "Bash(env)",
+      "Bash(file *)",
+      "Bash(find *)",
+      "Bash(git add:*)",
+      "Bash(git blame *)",
+      "Bash(git branch *)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git status *)",
+      "Bash(glab mr diff:*)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(jq *)",
+      "Bash(ls *)",
+      "Bash(printf *)",
+      "Bash(printenv *)",
+      "Bash(rg *)",
+      "Bash(sed *)",
+      "Bash(sort *)",
+      "Bash(stat *)",
+      "Bash(tail *)",
+      "Bash(tr *)",
+      "Bash(type *)",
+      "Bash(uniq *)",
+      "Bash(wc *)",
+      "Bash(which *)"
     ]
   },
   "hooks": {
