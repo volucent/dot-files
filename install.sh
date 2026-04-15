@@ -38,6 +38,8 @@ link claude/notify-input.sh ~/.claude/notify-input.sh
 link claude/session-name.sh ~/.claude/session-name.sh
 mkdir -p ~/.claude/skills/weekly-report
 link claude/skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
+link claude/skills/create-mr.md ~/.claude/skills/create-mr.md
+link claude/skills/new-task.md ~/.claude/skills/new-task.md
 
 # Codex
 link codex/hooks.json ~/.codex/hooks.json
