@@ -20,16 +20,18 @@ link() {
   echo "  $dst -> $src"
 }
 
-echo "Installing dotfiles..."
+echo "Installing dotfiles (macOS)..."
 
-# Fonts
+# Fonts (macOS auto-discovers fonts in ~/Library/Fonts; no fc-cache needed)
 echo "Installing fonts..."
-mkdir -p ~/.local/share/fonts
-cp "$DOTFILES"/fonts/intel-one-mono/*.ttf ~/.local/share/fonts/
-fc-cache -f
+mkdir -p ~/Library/Fonts
+cp "$DOTFILES"/fonts/intel-one-mono/*.ttf ~/Library/Fonts/
 
-# Kitty
-link kitty/kitty.conf ~/.config/kitty/kitty.conf
+# Ghostty (uses XDG path on macOS too)
+link ghostty/config ~/.config/ghostty/config
+
+# Zsh (work config; source from your personal ~/.zshrc)
+link .zshrc-trend-mac ~/.zshrc-trend
 
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
