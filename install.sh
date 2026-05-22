@@ -48,4 +48,10 @@ link codex/session-name.sh ~/.codex/session-name.sh
 mkdir -p ~/.codex/skills/weekly-report
 link codex/skills/weekly-report/SKILL.md ~/.codex/skills/weekly-report/SKILL.md
 
+# LLM modes (shared between Claude and Codex)
+for mode in drive plan build review; do
+  link "llm/modes/$mode.md" ~/.claude/skills/$mode.md
+  link "llm/modes/$mode.md" ~/.codex/skills/$mode/SKILL.md
+done
+
 echo "Done."

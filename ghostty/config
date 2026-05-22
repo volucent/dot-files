@@ -1,0 +1,71 @@
+# Font
+font-family = Intel One Mono Medium
+font-family-bold = Intel One Mono Bold
+font-family-italic = Intel One Mono Medium Italic
+font-family-bold-italic = Intel One Mono Bold Italic
+font-size = 13
+adjust-cell-width = 1%
+
+# Cursor
+cursor-style = bar
+cursor-style-blink = false
+
+# Scrollback (~50MB; default is 10MB)
+scrollback-limit = 50000000
+
+# Mouse
+mouse-scroll-multiplier = 5.0
+
+# Window
+background-opacity = 1.0
+window-padding-x = 10
+window-padding-y = 10
+
+# Colors
+foreground = #b0ada8
+background = #1a1e22
+selection-foreground = #1a1e22
+selection-background = #f0c674
+
+palette = 0=#1c1f24
+palette = 1=#b08080
+palette = 2=#8aaa96
+palette = 3=#bfad88
+palette = 4=#8a9cba
+palette = 5=#a898b8
+palette = 6=#84a8ae
+palette = 7=#c5c3bb
+palette = 8=#5c6370
+palette = 9=#bc8a8a
+palette = 10=#96b4a0
+palette = 11=#c8b898
+palette = 12=#9aa8c4
+palette = 13=#b0a4c0
+palette = 14=#8eb4b8
+palette = 15=#dcdad4
+
+# Windows / splits / tabs
+# Note: in kitty, "window" = split inside a tab; "os_window" = separate window.
+# In Ghostty, splits = within-tab division; new_window = OS window.
+keybind = super+enter=new_split:auto
+keybind = super+d=new_split:right
+keybind = super+t=new_tab
+keybind = super+n=new_window
+keybind = super+w=close_surface
+keybind = super+]=next_tab
+keybind = super+[=previous_tab
+
+# Split navigation (vim-style)
+keybind = super+h=goto_split:left
+keybind = super+j=goto_split:bottom
+keybind = super+k=goto_split:top
+keybind = super+l=goto_split:right
+
+# Split resize (replaces kitty's start_resizing_window)
+keybind = super+alt+h=resize_split:left,10
+keybind = super+alt+j=resize_split:down,10
+keybind = super+alt+k=resize_split:up,10
+keybind = super+alt+l=resize_split:right,10
+
+# Scrollback in pager (replaces kitty's `launch ... less +G -R`)
+keybind = super+f=write_scrollback_file:open
