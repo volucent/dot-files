@@ -1,14 +1,12 @@
-{
-  "hooks": [
-    {
-      "event": "Stop",
-      "matcher": "",
-      "handlers": [
-        {
-          "type": "command",
-          "command": "bash ~/.codex/notify-input.sh"
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "event": "Stop",
+    "matcher": "",
+    "handlers": [
+      {
+        "type": "command",
+        "command": "bash ~/.codex/notify-input.sh"
+      }
+    ]
+  }
+]

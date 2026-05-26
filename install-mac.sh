@@ -42,6 +42,10 @@ mkdir -p ~/.claude/skills/weekly-report
 link claude/skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
 link claude/skills/create-mr.md ~/.claude/skills/create-mr.md
 link claude/skills/new-task.md ~/.claude/skills/new-task.md
+mkdir -p ~/.claude/skills/grill-with-docs
+link claude/skills/grill-with-docs/SKILL.md ~/.claude/skills/grill-with-docs/SKILL.md
+link claude/skills/grill-with-docs/ADR-FORMAT.md ~/.claude/skills/grill-with-docs/ADR-FORMAT.md
+link claude/skills/grill-with-docs/CONTEXT-FORMAT.md ~/.claude/skills/grill-with-docs/CONTEXT-FORMAT.md
 
 # Codex
 link codex/hooks.json ~/.codex/hooks.json

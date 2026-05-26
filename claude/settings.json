@@ -53,6 +53,5 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
-  "effortLevel": "high",
-  "skipAutoPermissionPrompt": true
+  "effortLevel": "high"
 }
