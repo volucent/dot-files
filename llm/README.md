@@ -39,9 +39,10 @@ perf, correctness).
 
 ## Installed as skills
 
-Source lives at `llm/modes/`. The install scripts symlink each mode into
-`~/.claude/skills/` and `~/.codex/skills/`. Invoke with `/drive`, `/plan`,
-`/build`, `/review`.
+Source lives at `skills/{drive,plan,build,review}/`. The install scripts symlink each mode into
+`~/.claude/skills/` for Claude and `~/.agents/skills/` for Codex. Compatibility
+links are also installed under `~/.codex/skills/`. Invoke with `$drive`,
+`$plan`, `$build`, `$review`.
 
 ## Principles
 
