@@ -17,7 +17,7 @@ trust_level = "trusted"
 [projects."/home/pasha/repos/finance-platform/finance-platform-ui"]
 trust_level = "trusted"
 
-[projects."/home/pasha/.codex/skills"]
+[projects."/home/pasha/.agents/skills"]
 trust_level = "trusted"
 
 [projects."/home/pasha/repos"]
