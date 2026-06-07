@@ -123,6 +123,7 @@ alias pp="npx pino-pretty -l -t "SYS:HH:MM:ss""
 
 # alias kpn="kubectl config view --minify | grep namespace | awk -F' ' '{print $2}'"
 alias set-qa="git branch -f qa HEAD && git push origin --delete qa && git push origin qa"
+alias set-qa-2="git branch -f qa-staging-2 HEAD && git push origin --delete qa-staging-2 && git push origin qa-staging-2"
 
 # set default text editor to vim
 export VISUAL=vim
@@ -289,12 +290,21 @@ fin-reupload-hash() {
     echo "reupload no args"
     return 1
   fi
-  
+
   # Reupload using the hash ID
   response=$(curl -s https://finance-platform-api.birdsdontexist.com/debug/pave/cKZ1M8erKUjx6y5srVqPacCLY/transactionsUpload/"$1")
-  
+
   # Output the response
   echo "$response"
+}
+
+# Convert a video (e.g. .mov) to a web-friendly H.264 mp4
+mov2mp4() {
+  if [ -z "$1" ]; then
+    echo "Usage: mov2mp4 <filename>"
+    return 1
+  fi
+  ffmpeg -i "$1" -c:v libx264 -preset medium -crf 18 -c:a aac -movflags +faststart "${1:r}.mp4"
 }
 eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 export PATH="$HOME/.local/bin:$PATH"
