@@ -36,6 +36,7 @@
       "Bash(which *)"
     ]
   },
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "Stop": [
       {
@@ -54,5 +55,6 @@
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true
 }
