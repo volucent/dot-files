@@ -33,6 +33,7 @@ link kitty/kitty.conf ~/.config/kitty/kitty.conf
 
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
+link claude/CLAUDE.md ~/.claude/CLAUDE.md
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/notify-input.sh ~/.claude/notify-input.sh
 link claude/session-name.sh ~/.claude/session-name.sh
