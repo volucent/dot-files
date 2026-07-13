@@ -35,6 +35,7 @@ link .zshrc-trend-mac ~/.zshrc-trend
 
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
+link claude/CLAUDE.md ~/.claude/CLAUDE.md
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/notify-input.sh ~/.claude/notify-input.sh
 link claude/session-name.sh ~/.claude/session-name.sh
