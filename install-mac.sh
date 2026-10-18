@@ -95,4 +95,11 @@ for mode in drive plan build review; do
   link "skills/$mode" ~/.codex/skills/$mode
 done
 
+# Work tool skills (secrets come from `pass`; shared between Claude and Codex)
+for skill in check-graylog check-qa-staging-db; do
+  link "skills/$skill" ~/.claude/skills/$skill
+  link "skills/$skill" ~/.agents/skills/$skill
+  link "skills/$skill" ~/.codex/skills/$skill
+done
+
 echo "Done."
