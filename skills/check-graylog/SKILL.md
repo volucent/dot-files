@@ -1,7 +1,7 @@
 ---
 name: check-graylog
 description: Query Graylog logs via its REST API using the URL and API token stored in `pass`. Use when the user wants to check, search, or tail Graylog logs, or investigate errors/requests in logs.
-argument-hint: [optional: search query, e.g. "kubernetes_namespace_name:<namespace> AND message:error"]
+argument-hint: '[optional: search query, e.g. "kubernetes_namespace_name:<namespace> AND message:error"]'
 allowed-tools: Bash
 ---
 
