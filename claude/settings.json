@@ -34,9 +34,10 @@
       "Bash(uniq *)",
       "Bash(wc *)",
       "Bash(which *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Stop": [
       {
@@ -54,7 +55,44 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
+  "outputStyle": "Proactive",
   "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "high"
+    }
+  },
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
   "skipDangerousModePermissionPrompt": true,
-  "skipWorkflowUsageWarning": true
+  "skipWorkflowUsageWarning": true,
+  "voiceEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skillOverrides": {
+    "caveman": "off",
+    "codebase-design": "off",
+    "diagnosing-bugs": "off",
+    "domain-modeling": "off",
+    "prototype": "off",
+    "research": "off",
+    "tdd": "off",
+    "weekly-report": "off",
+    "write-a-skill": "off",
+    "ask-matt": "off",
+    "implement": "off",
+    "improve-codebase-architecture": "off",
+    "setup-matt-pocock-skills": "off",
+    "to-spec": "off",
+    "to-tickets": "off",
+    "triage": "off",
+    "wayfinder": "off",
+    "grill-with-docs": "off"
+  },
+  "enabledPlugins": {
+    "mattpocock-skills@synced": false,
+    "cowork-plugin-management@synced": false,
+    "anthropic-skills@inline": false
+  }
 }
