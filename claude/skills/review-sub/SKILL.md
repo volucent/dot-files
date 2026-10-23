@@ -1,6 +1,6 @@
 ---
 name: review-sub
-description: Spin up a fresh sub-agent (on a chosen model) to review the current branch against master, then walk the user through resolving each finding one by one (or just report with --no-prompt).
+description: Spin up a fresh sub-agent (on a chosen model) to review the current branch against master, then either walk the user through each finding one by one, or (--no-prompt) summarize and ask once which fixes to apply.
 argument-hint: [model: fable|opus|sonnet|haiku] [--no-prompt]
 disable-model-invocation: true
 allowed-tools: Bash, Read, Glob, Grep, Edit, Write, Agent, AskUserQuestion
@@ -15,8 +15,8 @@ Arguments: `$ARGUMENTS`
 - **Model** — first word matching `fable`, `opus`, `sonnet`, or `haiku`
   (phrases like "a fable sub agent" count). None given → omit the `model`
   param so the agent inherits the current model.
-- **No prompt** — `--no-prompt` (or phrasing like "no prompt", "don't ask",
-  "just report") → report findings and stop after step 4.
+- **Mode** — default is **prompt** (step 5a). `--no-prompt` (or phrasing
+  like "no prompt", "don't ask one by one") → **no-prompt** (step 5b).
 
 ## Step 2: Collect the diff
 
@@ -48,30 +48,40 @@ prompt must carry everything:
 
 Don't tell it what you think is wrong. You want an unanchored read.
 
-## Step 4: Show the findings
+## Step 4: Verify and show the findings
 
-Print the reviewer's list as-is (numbered, ranked). If it's clean, say so and
-stop. In no-prompt mode, stop here too — make no edits.
+Before presenting, check each finding yourself against the cited code. Mark
+any you think is wrong as such — don't silently drop it.
 
-## Step 5: Resolve one by one
+Print the list (numbered, ranked by severity). If it's clean, say so in one
+line and stop.
 
-For each finding, in order, call `AskUserQuestion` with a single question:
+## Step 5a: Prompt mode — one by one
+
+Go through the findings in order, one at a time. For each, call
+`AskUserQuestion` with a single question:
 
 - Question: `#N <severity> file:line — <issue>`
 - Options (first one is your recommendation, marked `(Recommended)`):
-  - **Fix** — apply the suggested resolution (put a concrete preview of the
-    change in `preview`).
+  - **Fix** — apply the suggested resolution (concrete preview of the change
+    in `preview`).
   - **Alternative fix** — only when there's a real second approach.
   - **Skip** — not an issue / won't fix.
-  - **Defer** — leave a note in the final summary, no change now.
+  - **Defer** — no change now; note it in the summary.
 
-Before asking, verify the finding yourself by reading the cited code. If it's
-wrong, say so in the question and recommend **Skip**.
+Treat it as a conversation, not a form. If the user answers under "Other",
+asks a question, or pushes back, discuss it until the finding is settled,
+then act on the decision (make the edit, or note skip/defer) before moving to
+the next finding.
 
-Act on the answer before moving to the next finding: make the edit, or note
-the skip/defer. If the user types something under "Other", follow it.
+## Step 5b: No-prompt mode — one question
+
+Behave like a normal review reply: no per-finding questions. Summarize, e.g.
+"Found 5 issues. #1, #2 and #5 are easy fixes; #3 needs a decision on X; #4
+looks like a false positive." Then ask **one** question — whether to apply
+the easy fixes — and wait. Do what the user answers; don't edit before that.
 
 ## Step 6: Summary
 
-One line per finding: `#N — fixed | skipped | deferred — <short note>`.
-Don't commit unless asked.
+After acting, one line per finding: `#N — fixed | skipped | deferred —
+<short note>`. Don't commit unless asked.
