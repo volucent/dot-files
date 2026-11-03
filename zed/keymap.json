@@ -1,0 +1,27 @@
+// Layered on top of the JetBrains base keymap (see settings.json).
+// JetBrains tool-window slots: cmd-1 project, cmd-2 agent, cmd-9 git history,
+// cmd-0 git panel.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-2": "agent::ToggleFocus",
+      "cmd-9": "git_graph::Open",
+
+      // New threads per agent.
+      "cmd-alt-1": ["agent::NewExternalAgentThread", { "agent": "claude-acp" }],
+      "cmd-alt-2": ["agent::NewExternalAgentThread", { "agent": "codex-acp" }],
+      "cmd-alt-3": "agent::NewTerminalThread",
+
+      // Git history (cmd-alt-g b toggles full-file blame by default).
+      "cmd-alt-g h": "git::FileHistory",
+      "cmd-alt-g g": "git_graph::Open",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-alt-g h": "git::FileHistory",
+    },
+  },
+]

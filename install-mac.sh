@@ -49,9 +49,15 @@ echo "Installing dotfiles (macOS)..."
 echo "Installing fonts..."
 mkdir -p ~/Library/Fonts
 cp "$DOTFILES"/fonts/intel-one-mono/*.ttf ~/Library/Fonts/
+cp "$DOTFILES"/fonts/atkinson-hyperlegible-next/*.ttf ~/Library/Fonts/
 
 # Ghostty (uses XDG path on macOS too)
 link ghostty/config ~/.config/ghostty/config
+
+# Zed
+link zed/settings.json ~/.config/zed/settings.json
+link zed/keymap.json ~/.config/zed/keymap.json
+link zed/themes/umber.json ~/.config/zed/themes/umber.json
 
 # Zsh (work config; source from your personal ~/.zshrc)
 link .zshrc-trend-mac ~/.zshrc-trend
