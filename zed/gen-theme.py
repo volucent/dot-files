@@ -2,6 +2,8 @@
 
 Usage: python3 zed/gen-theme.py zed/themes/umber.json
 Prints WCAG contrast of each color against the editor background.
+Zed only watches ~/.config/zed/themes, so after regenerating run
+`touch -h ~/.config/zed/themes/umber.json` to reload the symlinked theme.
 """
 import json
 import sys
@@ -32,6 +34,8 @@ DARK = dict(
     bg="#2e2a26",          # editor
     elevated="#36312c",    # popovers, modals
     active_line="#34302b",
+    # Multibuffer (references, search) file header band.
+    subheader="#3b352f",
     hover="#3a352f",
     selected="#453e37",
     active="#4d453d",
@@ -57,6 +61,7 @@ DARK = dict(
     purple="#b29bab",
     cursor="#d4a87c",
     selection_alpha="38",
+    usage_alpha="38",
     bg_tint_alpha="26",
     term_black="#2a2623",
     term_white="#cdc3b5",
@@ -73,6 +78,7 @@ LIGHT = dict(
     bg="#dbd2c4",
     elevated="#e0d8cb",
     active_line="#d3c9ba",
+    subheader="#cbc0b0",
     hover="#cdc2b2",
     selected="#c3b7a5",
     active="#b9ac99",
@@ -97,6 +103,7 @@ LIGHT = dict(
     purple="#69475e",
     cursor="#80511f",
     selection_alpha="40",
+    usage_alpha="26",
     bg_tint_alpha="2e",
     term_black="#463c33",
     term_white="#cfc5b6",
@@ -170,9 +177,10 @@ def style(p):
         "editor.foreground": p["text"],
         "editor.background": p["bg"],
         "editor.gutter.background": p["bg"],
-        "editor.subheader.background": p["panel"],
+        "editor.subheader.background": p["subheader"],
         "editor.active_line.background": p["active_line"],
-        "editor.highlighted_line.background": p["active_line"],
+        # Marks each usage in References / Find All References.
+        "editor.highlighted_line.background": a(p["blue"], p["usage_alpha"]),
         "editor.line_number": p["line_number"],
         "editor.active_line_number": p["line_number_active"],
         "editor.hover_line_number": p["text_muted"],
