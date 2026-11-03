@@ -175,6 +175,9 @@
     "breakpoints": false,
     "min_line_number_digits": 3,
   },
+  // One line of code around each hit in References, project search and
+  // diagnostics, so the list reads more like a list.
+  "excerpt_context_lines": 1,
   "collaboration_panel": { "button": false },
   "debugger": { "button": false },
 
