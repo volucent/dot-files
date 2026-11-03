@@ -187,6 +187,8 @@
     "runnables": false,
     "breakpoints": false,
     "min_line_number_digits": 3,
+    // Wider diff stripe (default is ~6px at this font size).
+    "git_gutter_width": { "custom": 10 },
   },
   // One line of code around each hit in References, project search and
   // diagnostics, so the list reads more like a list.
