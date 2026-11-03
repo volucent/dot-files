@@ -57,6 +57,7 @@ link ghostty/config ~/.config/ghostty/config
 # Zed
 link zed/settings.json ~/.config/zed/settings.json
 link zed/keymap.json ~/.config/zed/keymap.json
+link zed/tasks.json ~/.config/zed/tasks.json
 link zed/themes/umber.json ~/.config/zed/themes/umber.json
 
 # Zsh (work config; source from your personal ~/.zshrc)

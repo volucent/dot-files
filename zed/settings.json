@@ -68,6 +68,9 @@
     "show_turn_stats": true,
     "expand_edit_card": true,
     "expand_terminal_card": false,
+    // Keep/reject agent hunks inline in any open file, not only in Review
+    // Changes.
+    "single_file_review": true,
     "message_editor_min_lines": 4,
     // Enter adds a newline; cmd-enter sends.
     "use_modifier_to_send": true,
@@ -117,6 +120,10 @@
   },
   "git_panel": {
     "dock": "right",
+    // See at a glance when agents have dirtied the tree.
+    "show_count_badge": true,
+    "tree_view": true,
+    "collapse_untracked_diff": true,
   },
   "outline_panel": {
     "dock": "right",
@@ -162,6 +169,12 @@
   // Less editing chrome: I mostly read and review what agents wrote
   // ---------------------------------------------------------------------------
   "show_edit_predictions": false,
+  // Hiding predictions still leaves the provider running; turn it off.
+  "edit_predictions": {
+    "provider": "none",
+  },
+  // One column (removed above added) reads better in narrow panes.
+  "diff_view_style": "unified",
   "toolbar": {
     "breadcrumbs": true,
     "quick_actions": false,

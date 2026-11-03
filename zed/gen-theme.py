@@ -209,6 +209,10 @@ def style(p):
         "version_control.renamed": p["blue"],
         "version_control.conflict": p["orange"],
         "version_control.ignored": p["text_disabled"],
+        # Changed words inside a diff hunk; Zed's fallback is a vivid green and
+        # crimson.
+        "version_control.word_added": a(p["green"], "55"),
+        "version_control.word_deleted": a(p["red"], "55"),
     }
     for ansi, key in [("red", "red"), ("green", "green"), ("yellow", "yellow"),
                       ("blue", "blue"), ("magenta", "purple"), ("cyan", "teal")]:
