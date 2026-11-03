@@ -64,6 +64,7 @@ DARK = dict(
     # brown background as possible so the two never blend together.
     diff_added="#7fd3cf",
     diff_deleted="#f0a3cc",
+    diff_modified="#a8b2f0",  # periwinkle: edited hunks, modified files
     diff_line_alpha="38",
     diff_word_alpha="0c",  # line + word tint keeps text >= 4.5:1
     selection_alpha="38",
@@ -110,6 +111,7 @@ LIGHT = dict(
     cursor="#80511f",
     diff_added="#2f7a74",
     diff_deleted="#a8457a",
+    diff_modified="#4a52a0",
     diff_line_alpha="26",
     diff_word_alpha="40",
     selection_alpha="40",
@@ -214,7 +216,7 @@ def style(p):
         "terminal.ansi.dim_white": p["text_muted"],
         "link_text.hover": p["orange"],
         "version_control.added": p["diff_added"],
-        "version_control.modified": p["yellow"],
+        "version_control.modified": p["diff_modified"],
         "version_control.deleted": p["diff_deleted"],
         "version_control.renamed": p["blue"],
         "version_control.conflict": p["orange"],
@@ -237,7 +239,7 @@ def style(p):
     for name, color in [
         ("conflict", p["orange"]), ("created", p["green"]), ("deleted", p["red"]),
         ("error", p["red"]), ("hidden", p["text_disabled"]), ("hint", p["text_placeholder"]),
-        ("ignored", p["text_disabled"]), ("info", p["blue"]), ("modified", p["yellow"]),
+        ("ignored", p["text_disabled"]), ("info", p["blue"]), ("modified", p["diff_modified"]),
         ("predictive", p["text_placeholder"]), ("renamed", p["blue"]), ("success", p["green"]),
         ("unreachable", p["text_disabled"]), ("warning", p["orange"]),
     ]:
