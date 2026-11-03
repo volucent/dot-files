@@ -38,38 +38,6 @@
     "defaultMode": "auto"
   },
   "model": "opus[1m]",
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/notify-input.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
-  },
-  "outputStyle": "Proactive",
-  "effortLevel": "high",
-  "modelSettings": {
-    "claude-fable-5": {
-      "effortLevel": "high"
-    }
-  },
-  "voice": {
-    "enabled": true,
-    "mode": "hold"
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "skipWorkflowUsageWarning": true,
-  "voiceEnabled": true,
-  "agentPushNotifEnabled": true,
   "skillOverrides": {
     "caveman": "off",
     "codebase-design": "off",
@@ -88,11 +56,49 @@
     "to-tickets": "off",
     "triage": "off",
     "wayfinder": "off",
-    "grill-with-docs": "off"
+    "grill-with-docs": "off",
+    "grill-with-docs.bak": "off"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/notify-input.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "mattpocock-skills@synced": false,
     "cowork-plugin-management@synced": false,
-    "anthropic-skills@inline": false
+    "anthropic-skills@inline": false,
+    "typescript-lsp@claude-plugins-official": true,
+    "cowork-plugin-management@inline": false
+  },
+  "outputStyle": "Proactive",
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "high"
+    }
+  },
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": true,
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   }
 }
