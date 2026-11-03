@@ -9,6 +9,12 @@
       "cmd-9": "git_graph::Open",
       "ctrl-`": "terminal_panel::Toggle",
 
+      // Zoom text (JetBrains puts fold/unfold here). In the agent panel these
+      // resize the agent fonts instead. cmd-0 stays the git panel.
+      "cmd-=": ["zed::IncreaseBufferFontSize", { "persist": false }],
+      "cmd-+": ["zed::IncreaseBufferFontSize", { "persist": false }],
+      "cmd--": ["zed::DecreaseBufferFontSize", { "persist": false }],
+
       // New threads per agent.
       "cmd-alt-1": ["agent::NewExternalAgentThread", { "agent": "claude-acp" }],
       "cmd-alt-2": ["agent::NewExternalAgentThread", { "agent": "codex-acp" }],
