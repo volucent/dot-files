@@ -7,6 +7,7 @@
     "bindings": {
       "cmd-2": "agent::ToggleFocus",
       "cmd-9": "git_graph::Open",
+      "ctrl-`": "terminal_panel::Toggle",
 
       // New threads per agent.
       "cmd-alt-1": ["agent::NewExternalAgentThread", { "agent": "claude-acp" }],
@@ -19,9 +20,62 @@
     },
   },
   {
+    // JetBrains unmaps zoom and reuses shift-escape to hide the active dock.
+    "context": "Dock || Workspace || OutlinePanel || ProjectPanel || CollabPanel",
+    "bindings": {
+      "shift-escape": "workspace::ToggleZoom",
+    },
+  },
+  {
+    // JetBrains scopes cmd-shift-f to the selected folder here; search the
+    // whole project like everywhere else.
+    "context": "ProjectPanel",
+    "bindings": {
+      "cmd-shift-f": "pane::DeploySearch",
+    },
+  },
+  {
     "context": "Editor",
     "bindings": {
       "cmd-alt-g h": "git::FileHistory",
+
+      // u = usages, r = rename (instead of alt-f7 / shift-f6).
+      "cmd-alt-u": "editor::FindAllReferences",
+      "ctrl-cmd-r": "editor::Rename",
+      "cmd-.": "editor::ToggleCodeActions",
+
+      // Zed/VS Code line moves (JetBrains had these on extend selection;
+      // extend/shrink stays on ctrl-cmd-right/left).
+      "alt-up": "editor::MoveLineUp",
+      "alt-down": "editor::MoveLineDown",
+      "shift-alt-up": "editor::DuplicateLineUp",
+      "shift-alt-down": "editor::DuplicateLineDown",
+
+      // Split instead of JetBrains' inline assist.
+      "cmd-\\": "pane::SplitRight",
+    },
+  },
+  {
+    // Inline assist stays unbound; use the command palette.
+    "context": "!AcpThread > Editor && mode == full",
+    "bindings": {
+      "ctrl-enter": null,
+    },
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-enter": null,
+    },
+  },
+  {
+    // Accept / reject all agent edits. Not bound inside the message editor,
+    // where cmd-shift-enter sends immediately and cmd-shift-backspace drops
+    // the first queued message.
+    "context": "AgentDiff || (Editor && editor_agent_diff) || AcpThread",
+    "bindings": {
+      "cmd-shift-enter": "agent::KeepAll",
+      "cmd-shift-backspace": "agent::RejectAll",
     },
   },
 ]

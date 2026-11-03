@@ -69,6 +69,8 @@
     "expand_edit_card": true,
     "expand_terminal_card": false,
     "message_editor_min_lines": 4,
+    // Enter adds a newline; cmd-enter sends.
+    "use_modifier_to_send": true,
     // Terminal Threads open straight into Claude Code's TUI.
     "terminal_init_command": "claude",
     // Native Zed Agent guardrails (Claude/Codex keep their own permission modes,
