@@ -93,14 +93,20 @@
         "terminal.ansi.bright_white": "#ddd4c7",
         "terminal.ansi.dim_white": "#a3998c",
         "link_text.hover": "#cba07a",
-        "version_control.added": "#a5ae87",
+        "version_control.added": "#7fd3cf",
         "version_control.modified": "#c9b17f",
-        "version_control.deleted": "#c4917f",
+        "version_control.deleted": "#f0a3cc",
         "version_control.renamed": "#93a3b0",
         "version_control.conflict": "#cba07a",
         "version_control.ignored": "#655d55",
-        "version_control.word_added": "#a5ae8755",
-        "version_control.word_deleted": "#c4917f55",
+        "version_control.word_added": "#7fd3cf0c",
+        "version_control.word_deleted": "#f0a3cc0c",
+        "editor.diff_hunk.added.background": "#7fd3cf38",
+        "editor.diff_hunk.added.hollow_background": "#7fd3cf14",
+        "editor.diff_hunk.added.hollow_border": "#7fd3cf66",
+        "editor.diff_hunk.deleted.background": "#f0a3cc38",
+        "editor.diff_hunk.deleted.hollow_background": "#f0a3cc14",
+        "editor.diff_hunk.deleted.hollow_border": "#f0a3cc66",
         "terminal.ansi.red": "#c4917f",
         "terminal.ansi.bright_red": "#c4917f",
         "terminal.ansi.dim_red": "#c4917faa",
@@ -425,12 +431,12 @@
             "font_weight": null
           },
           "diff.plus": {
-            "color": "#a5ae87",
+            "color": "#7fd3cf",
             "font_style": null,
             "font_weight": null
           },
           "diff.minus": {
-            "color": "#c4917f",
+            "color": "#f0a3cc",
             "font_style": null,
             "font_weight": null
           }
@@ -527,14 +533,20 @@
         "terminal.ansi.bright_white": "#e0d8cb",
         "terminal.ansi.dim_white": "#5f5347",
         "link_text.hover": "#80511f",
-        "version_control.added": "#4c5a2e",
+        "version_control.added": "#2f7a74",
         "version_control.modified": "#685720",
-        "version_control.deleted": "#874434",
+        "version_control.deleted": "#a8457a",
         "version_control.renamed": "#3f5366",
         "version_control.conflict": "#80511f",
         "version_control.ignored": "#a09484",
-        "version_control.word_added": "#4c5a2e55",
-        "version_control.word_deleted": "#87443455",
+        "version_control.word_added": "#2f7a7440",
+        "version_control.word_deleted": "#a8457a40",
+        "editor.diff_hunk.added.background": "#2f7a7426",
+        "editor.diff_hunk.added.hollow_background": "#2f7a7414",
+        "editor.diff_hunk.added.hollow_border": "#2f7a7466",
+        "editor.diff_hunk.deleted.background": "#a8457a26",
+        "editor.diff_hunk.deleted.hollow_background": "#a8457a14",
+        "editor.diff_hunk.deleted.hollow_border": "#a8457a66",
         "terminal.ansi.red": "#874434",
         "terminal.ansi.bright_red": "#874434",
         "terminal.ansi.dim_red": "#874434aa",
@@ -859,12 +871,12 @@
             "font_weight": null
           },
           "diff.plus": {
-            "color": "#4c5a2e",
+            "color": "#2f7a74",
             "font_style": null,
             "font_weight": null
           },
           "diff.minus": {
-            "color": "#874434",
+            "color": "#a8457a",
             "font_style": null,
             "font_weight": null
           }

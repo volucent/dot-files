@@ -60,6 +60,12 @@ DARK = dict(
     blue="#93a3b0",
     purple="#b29bab",
     cursor="#d4a87c",
+    # Diffs: pastel teal (added) vs pink (removed), hues as far from the
+    # brown background as possible so the two never blend together.
+    diff_added="#7fd3cf",
+    diff_deleted="#f0a3cc",
+    diff_line_alpha="38",
+    diff_word_alpha="0c",  # line + word tint keeps text >= 4.5:1
     selection_alpha="38",
     usage_alpha="38",
     bg_tint_alpha="26",
@@ -102,6 +108,10 @@ LIGHT = dict(
     blue="#3f5366",
     purple="#69475e",
     cursor="#80511f",
+    diff_added="#2f7a74",
+    diff_deleted="#a8457a",
+    diff_line_alpha="26",
+    diff_word_alpha="40",
     selection_alpha="40",
     usage_alpha="26",
     bg_tint_alpha="2e",
@@ -203,16 +213,21 @@ def style(p):
         "terminal.ansi.bright_white": p["term_bright_white"],
         "terminal.ansi.dim_white": p["text_muted"],
         "link_text.hover": p["orange"],
-        "version_control.added": p["green"],
+        "version_control.added": p["diff_added"],
         "version_control.modified": p["yellow"],
-        "version_control.deleted": p["red"],
+        "version_control.deleted": p["diff_deleted"],
         "version_control.renamed": p["blue"],
         "version_control.conflict": p["orange"],
         "version_control.ignored": p["text_disabled"],
-        # Changed words inside a diff hunk; Zed's fallback is a vivid green and
-        # crimson.
-        "version_control.word_added": a(p["green"], "55"),
-        "version_control.word_deleted": a(p["red"], "55"),
+        # Changed words inside a diff hunk, layered on the line tint.
+        "version_control.word_added": a(p["diff_added"], p["diff_word_alpha"]),
+        "version_control.word_deleted": a(p["diff_deleted"], p["diff_word_alpha"]),
+        "editor.diff_hunk.added.background": a(p["diff_added"], p["diff_line_alpha"]),
+        "editor.diff_hunk.added.hollow_background": a(p["diff_added"], "14"),
+        "editor.diff_hunk.added.hollow_border": a(p["diff_added"], "66"),
+        "editor.diff_hunk.deleted.background": a(p["diff_deleted"], p["diff_line_alpha"]),
+        "editor.diff_hunk.deleted.hollow_background": a(p["diff_deleted"], "14"),
+        "editor.diff_hunk.deleted.hollow_border": a(p["diff_deleted"], "66"),
     }
     for ansi, key in [("red", "red"), ("green", "green"), ("yellow", "yellow"),
                       ("blue", "blue"), ("magenta", "purple"), ("cyan", "teal")]:
@@ -284,8 +299,8 @@ def style(p):
         "variable.parameter": syn(p["text"]),
         "variable.special": syn(p["purple"]),
         "variant": syn(p["teal"]),
-        "diff.plus": syn(p["green"]),
-        "diff.minus": syn(p["red"]),
+        "diff.plus": syn(p["diff_added"]),
+        "diff.minus": syn(p["diff_deleted"]),
     }
     return s
 
