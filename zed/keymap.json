@@ -59,6 +59,12 @@
 
       // Split instead of JetBrains' inline assist.
       "cmd-\\": "pane::SplitRight",
+
+      // JetBrains binds fold/unfold here at Editor depth, which outranks the
+      // Workspace zoom bindings above, so repeat them.
+      "cmd-=": ["zed::IncreaseBufferFontSize", { "persist": false }],
+      "cmd-+": ["zed::IncreaseBufferFontSize", { "persist": false }],
+      "cmd--": ["zed::DecreaseBufferFontSize", { "persist": false }],
     },
   },
   {
