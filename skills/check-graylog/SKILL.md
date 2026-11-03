@@ -25,7 +25,7 @@ curl -sS -u "$GL_AUTH" -H 'Accept: application/json' "$GL_URL/api/system" | jq '
 Shell state does not persist between Bash calls, so re-load `GL_URL` / `GL_AUTH` in every call.
 
 - `pass` error "not in the password store" → tell the user the entry is missing; don't guess values.
-- Connection timeout → Graylog is likely behind the VPN; ask the user to check it's connected.
+- Connection timeout → Graylog is public (behind Cloudflare, no VPN needed); report the timeout rather than blaming the network setup.
 - 401 → token expired or revoked; ask the user to create a new one and save it with `pass insert -f graylog/api-token`.
 
 ## Step 2: Search

@@ -1,7 +1,7 @@
 ---
 name: review-sub
 description: Spin up a fresh sub-agent (on a chosen model) to review the current branch against master, then either walk the user through each finding one by one, or (--no-prompt) summarize and ask once which fixes to apply.
-argument-hint: [model: fable|opus|sonnet|haiku] [--no-prompt]
+argument-hint: "[model: fable|opus|sonnet|haiku] [--no-prompt]"
 disable-model-invocation: true
 allowed-tools: Bash, Read, Glob, Grep, Edit, Write, Agent, AskUserQuestion
 ---
@@ -13,8 +13,7 @@ Arguments: `$ARGUMENTS`
 ## Step 1: Parse arguments
 
 - **Model** — first word matching `fable`, `opus`, `sonnet`, or `haiku`
-  (phrases like "a fable sub agent" count). None given → omit the `model`
-  param so the agent inherits the current model.
+  (phrases like "a fable sub agent" count). None given → `sonnet`.
 - **Mode** — default is **prompt** (step 5a). `--no-prompt` (or phrasing
   like "no prompt", "don't ask one by one") → **no-prompt** (step 5b).
 

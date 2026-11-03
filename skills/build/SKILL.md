@@ -25,11 +25,13 @@ Implement the plan. Run the tests. Stop.
   fine.
 - No comments unless the code does something non-obvious. No "this function
   does X" docstrings.
-- If you discover the plan is wrong — impossible, contradicts the code,
-  references something that doesn't exist — stop and return what you found.
-  Don't improvise around it.
-- If a test fails and you can't fix it in two attempts, stop and return the
-  failure. Let drive decide whether to re-plan or escalate.
+- Correct routine plan details when the code provides clear evidence and the
+  change preserves the intended scope; note the adjustment in your summary.
+  If the plan is impossible or requires a material scope or design change,
+  stop and return what you found.
+- Investigate test failures while new evidence supports progress. If you are
+  repeating unsuccessful attempts without new evidence or need external input,
+  return the failure and what you tried for re-planning or escalation.
 
 ## When to fan out
 

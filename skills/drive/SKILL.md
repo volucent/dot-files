@@ -26,8 +26,9 @@ left and what you've tried.
 ## Delegation rules
 
 - One delegation at a time per loop step. Wait for the result before the next.
-- Each sub-agent is fresh and stateless. Pass everything it needs in the
-  prompt — never assume continuity from a previous agent.
+- Reuse the build agent for focused follow-up fixes when it is still available.
+  Keep review separate from implementation. For any fresh agent, pass all
+  necessary context explicitly; do not assume it knows prior agents’ work.
 - Sub-agents return summaries. Raw exploration stays in their context, not
   yours.
 - If a sub-agent returns garbage, re-spawn with sharper instructions. Don't
