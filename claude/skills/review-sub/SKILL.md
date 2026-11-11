@@ -58,9 +58,19 @@ line and stop.
 ## Step 5a: Prompt mode — one by one
 
 Go through the findings in order, one at a time. For each, call
-`AskUserQuestion` with a single question:
+`AskUserQuestion` with a single question laid out as
+`~/.claude/skills/quiz/QUESTION-FORMAT.md` says (read it before the first
+question). Fill the layout from the finding:
 
-- Question: `#N <severity> file:line — <issue>`
+```
+[*]  #N <severity> · <issue, 3–6 words>  ·  file:line
+
+  • Issue:  <what's wrong>
+  • Why:  <why it matters>
+
+-->  How should we resolve #N?
+```
+
 - Options (first one is your recommendation, marked `(Recommended)`):
   - **Fix** — apply the suggested resolution (concrete preview of the change
     in `preview`).

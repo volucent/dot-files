@@ -20,42 +20,7 @@ Done when every pending call is either on the list or named as assumed.
 
 The **frontier** is every call whose prerequisites are settled. Ask the whole frontier, highest impact first, with the `AskUserQuestion` tool: up to 4 questions per call, more calls if the frontier is bigger. A call that depends on an answer still open waits for a later round.
 
-Each question **stands alone**, since the dialog may hide everything else, and stays **compact**: three blocks, one blank line between them, bullets instead of prose. Lay out the `question` text like this:
-
-```
-[*]  <finding, 3–6 words>  ·  <where>
-
-  • Now:  <what is true now>
-  • Risk:  <what goes wrong either way>
-
--->  <The question itself?>
-```
-
-Example:
-
-```
-[*]  Retry skips the 16th  ·  repay.scheduler.ts:42
-
-  • Now:  debit cards retry on Thursdays and Fridays only
-  • Risk:  users paid on the 16th may wait six days for a retry
-
--->  Keep the 16th as an extra retry day?
-```
-
-- **Where:** a ticket ID or spec section, or `file:line` when the call is about code. Leave it out when the finding names its place on its own.
-- **Bullets:** one short clause each. Swap `Risk` for a label that fits better (`Spec`, `Ticket`, `Cost`); add a third bullet only when the call needs it.
-- **Code:** any code a bullet mentions carries its `file:line`.
-
-The options carry the same calm:
-
-- **2–4 real options**, your recommendation first with a label ending in `(Recommended)`. "Other" is added automatically.
-- **Label:** 1–5 plain words, no punctuation clutter.
-- **Description:** one line with the consequence: what changes, what it costs or risks.
-- **`preview`** when options differ in code, a schema or wording: show only the lines that differ, with a blank line around them, so the user compares the actual text.
-- **`multiSelect`** only when the options can combine.
-- **Header:** a 12-character tag for the finding (`Retry days`, `Null guard`).
-
-If `AskUserQuestion` is unavailable, write the round in markdown with the same spacing: a `---` rule between questions, the question under a `### Q1 · <finding>` heading, options as a list with **A.**, **B.** …, and the recommendation marked `(recommended)`. Then wait for the reply.
+Lay out every question and its options as [QUESTION-FORMAT.md](QUESTION-FORMAT.md) says. Read it before the first round.
 
 ## 3. Absorb the answers
 
