@@ -81,6 +81,7 @@ mkdir -p ~/.claude/skills/write-a-skill
 link claude/skills/write-a-skill/SKILL.md ~/.claude/skills/write-a-skill/SKILL.md
 mkdir -p ~/.claude/skills/review-sub
 link claude/skills/review-sub/SKILL.md ~/.claude/skills/review-sub/SKILL.md
+link skills/quiz ~/.claude/skills/quiz
 
 # Codex
 link codex/hooks.json ~/.codex/hooks.json
