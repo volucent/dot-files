@@ -33,8 +33,8 @@ left and what you've tried.
   yours.
 - If a sub-agent returns garbage, re-spawn with sharper instructions. Don't
   argue across turns.
-- Use the project's `Agent` tool (Claude Code) or the equivalent sub-agent
-  mechanism (Codex). Inline the relevant mode rules into the prompt — don't
+- Use the `Agent` tool, or the equivalent sub-agent mechanism of the agent
+  you run in. Inline the relevant mode rules into the prompt — don't
   rely on the sub-agent having access to these mode files.
 
 ## Sub-agent prompt shape

@@ -39,7 +39,6 @@ link_matt_pocock_engineering_skills() {
 
     link "$rel_skill" ~/.claude/skills/$skill
     link "$rel_skill" ~/.agents/skills/$skill
-    link "$rel_skill" ~/.codex/skills/$skill
   done
 }
 
@@ -73,27 +72,22 @@ link claude/skills/write-a-skill/SKILL.md ~/.claude/skills/write-a-skill/SKILL.m
 mkdir -p ~/.claude/skills/review-sub
 link claude/skills/review-sub/SKILL.md ~/.claude/skills/review-sub/SKILL.md
 link skills/quiz ~/.claude/skills/quiz
+link skills/quiz ~/.agents/skills/quiz
 
-# Codex
-link codex/hooks.json ~/.codex/hooks.json
-link codex/notify-input.sh ~/.codex/notify-input.sh
-link codex/session-name.sh ~/.codex/session-name.sh
+# Other agents (~/.agents)
 link skills/weekly-report ~/.agents/skills/weekly-report
-link skills/weekly-report ~/.codex/skills/weekly-report
 if [ ! -d "$MATT_POCOCK_ENGINEERING_SKILLS/grill-with-docs" ]; then
   link skills/grill-with-docs ~/.claude/skills/grill-with-docs
   link skills/grill-with-docs ~/.agents/skills/grill-with-docs
-  link skills/grill-with-docs ~/.codex/skills/grill-with-docs
 fi
 
 # Matt Pocock engineering skills (shared between Claude and agent roots)
 link_matt_pocock_engineering_skills
 
-# LLM modes (shared between Claude and Codex)
+# LLM modes (shared between Claude and ~/.agents)
 for mode in drive plan build review; do
   link "skills/$mode/SKILL.md" ~/.claude/skills/$mode.md
   link "skills/$mode" ~/.agents/skills/$mode
-  link "skills/$mode" ~/.codex/skills/$mode
 done
 
 echo "Done."

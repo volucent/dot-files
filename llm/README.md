@@ -1,6 +1,6 @@
 # llm
 
-Modes — concise operational instructions for LLM agents (Claude, Codex).
+Modes — concise operational instructions for LLM agents (Claude and other agents).
 
 ## What's a mode
 
@@ -40,8 +40,7 @@ perf, correctness).
 ## Installed as skills
 
 Source lives at `skills/{drive,plan,build,review}/`. The install scripts symlink each mode into
-`~/.claude/skills/` for Claude and `~/.agents/skills/` for Codex. Compatibility
-links are also installed under `~/.codex/skills/`. Invoke with `$drive`,
+`~/.claude/skills/` for Claude and `~/.agents/skills/` for other agents. Invoke with `$drive`,
 `$plan`, `$build`, `$review`.
 
 ## Principles
