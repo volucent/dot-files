@@ -40,6 +40,14 @@ link_matt_pocock_engineering_skills() {
     link "$rel_skill" ~/.claude/skills/$skill
     link "$rel_skill" ~/.agents/skills/$skill
   done
+
+  # Engineering skills call these productivity skills (/grilling, /grill-me)
+  for skill in grilling grill-me; do
+    if [ -f "$DOTFILES/$MATT_POCOCK_SKILLS/skills/productivity/$skill/SKILL.md" ]; then
+      link "$MATT_POCOCK_SKILLS/skills/productivity/$skill" ~/.claude/skills/$skill
+      link "$MATT_POCOCK_SKILLS/skills/productivity/$skill" ~/.agents/skills/$skill
+    fi
+  done
 }
 
 echo "Installing dotfiles (macOS)..."
