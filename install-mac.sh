@@ -76,6 +76,8 @@ link claude/CLAUDE.md ~/.claude/CLAUDE.md
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/notify-input.sh ~/.claude/notify-input.sh
 link claude/session-name.sh ~/.claude/session-name.sh
+link claude/chat-name.sh ~/.claude/chat-name.sh
+link claude/lint-on-commit.sh ~/.claude/lint-on-commit.sh
 mkdir -p ~/.claude/skills/weekly-report
 link skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
 link claude/skills/create-mr.md ~/.claude/skills/create-mr.md
