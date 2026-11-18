@@ -90,6 +90,14 @@ mkdir -p ~/.claude/skills/write-a-skill
 link claude/skills/write-a-skill/SKILL.md ~/.claude/skills/write-a-skill/SKILL.md
 mkdir -p ~/.claude/skills/review-sub
 link claude/skills/review-sub/SKILL.md ~/.claude/skills/review-sub/SKILL.md
+
+# Orchestrator (one chat, many tickets; see claude/orchestrator/README.md). Only the scripts
+# are linked, so ~/.claude/orchestrator stays a real folder and its queue never lands here.
+link claude/orchestrator/bin/orch ~/.claude/orchestrator/bin/orch
+link claude/orchestrator/hooks/worker-guard.sh ~/.claude/orchestrator/hooks/worker-guard.sh
+link claude/output-styles/orchestrator.md ~/.claude/output-styles/orchestrator.md
+mkdir -p ~/.claude/skills/ticket-worker
+link claude/skills/ticket-worker/SKILL.md ~/.claude/skills/ticket-worker/SKILL.md
 link skills/quiz ~/.claude/skills/quiz
 link skills/quiz ~/.agents/skills/quiz
 

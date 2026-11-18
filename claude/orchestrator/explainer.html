@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orchestrator Kit Explained</title>
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --fg: #1d1d1b;
+    --muted: #6a6862;
+    --card: #ffffff;
+    --border: #e4e1d8;
+    --accent: #2f5fd0;
+    --accent-soft: #e6edfb;
+    --ok: #217a4b;
+    --ok-soft: #e3f3ea;
+    --bad: #b3362b;
+    --bad-soft: #fbe7e4;
+    --warn: #9a6400;
+    --warn-soft: #fbf0d9;
+    --code-bg: #f1efe9;
+    --dim: 0.22;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161614;
+      --fg: #ecebe6;
+      --muted: #a09d94;
+      --card: #201f1c;
+      --border: #36342f;
+      --accent: #7ea2f2;
+      --accent-soft: #1f2a44;
+      --ok: #6cc896;
+      --ok-soft: #173326;
+      --bad: #f08a7e;
+      --bad-soft: #3a1d19;
+      --warn: #e7b35a;
+      --warn-soft: #3a2c12;
+      --code-bg: #2a2925;
+      --dim: 0.18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161614;
+    --fg: #ecebe6;
+    --muted: #a09d94;
+    --card: #201f1c;
+    --border: #36342f;
+    --accent: #7ea2f2;
+    --accent-soft: #1f2a44;
+    --ok: #6cc896;
+    --ok-soft: #173326;
+    --bad: #f08a7e;
+    --bad-soft: #3a1d19;
+    --warn: #e7b35a;
+    --warn-soft: #3a2c12;
+    --code-bg: #2a2925;
+    --dim: 0.18;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.4rem; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 1.08rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin: 3px 0; }
+  .lede { color: var(--muted); font-size: 1.08rem; margin-bottom: 20px; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  pre {
+    background: var(--code-bg); padding: 12px 14px; border-radius: 8px;
+    overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 0 0 12px;
+  }
+  pre code { background: none; padding: 0; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; }
+  nav.toc a {
+    font-size: 0.85rem; text-decoration: none; color: var(--accent);
+    border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; background: var(--card);
+  }
+  .callout {
+    border-left: 4px solid var(--accent); background: var(--accent-soft);
+    padding: 12px 14px; border-radius: 0 8px 8px 0; margin: 16px 0;
+  }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+  }
+  .card .tag {
+    display: inline-block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .card .eli5 { font-size: 0.98rem; }
+  .card .real { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+  .card .real strong { color: var(--fg); }
+
+  /* diagram */
+  .diagram-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+  svg.diagram { width: 100%; height: auto; display: block; }
+  svg.diagram .node rect { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+  svg.diagram .node text { fill: var(--fg); font-size: 14px; font-family: inherit; }
+  svg.diagram .node text.sub { fill: var(--muted); font-size: 11.5px; }
+  svg.diagram .edge { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+  svg.diagram .edge-label { fill: var(--muted); font-size: 11px; }
+  svg.diagram .node, svg.diagram .edgegroup { transition: opacity 0.25s; }
+  svg.diagram.stepping .node, svg.diagram.stepping .edgegroup { opacity: var(--dim); }
+  svg.diagram.stepping .on { opacity: 1; }
+  svg.diagram .node.on rect { stroke: var(--accent); stroke-width: 2.5; fill: var(--accent-soft); }
+  svg.diagram .edgegroup.on .edge { stroke: var(--accent); stroke-width: 2.5; }
+  svg.diagram .edgegroup.on .edge-label { fill: var(--accent); }
+  svg.diagram marker path { fill: var(--muted); }
+
+  .stepper { margin-top: 12px; }
+  .step-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  button {
+    font: inherit; font-size: 0.92rem; cursor: pointer; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card); color: var(--fg); padding: 6px 14px;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  .step-count { color: var(--muted); font-size: 0.88rem; margin-left: auto; }
+  .step-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; min-height: 170px; }
+  .step-box .who { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+  .step-box h3 { margin-top: 2px; }
+  .step-box .under { color: var(--muted); font-size: 0.92rem; }
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; }
+  .dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; }
+  .dots span.on { background: var(--accent); }
+
+  /* report anatomy */
+  .anatomy { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .anatomy .msg { font-size: 1rem; line-height: 2.1; }
+  .anatomy .seg { border-radius: 4px; padding: 2px 4px; }
+  .seg.s1 { background: var(--accent-soft); }
+  .seg.s2 { background: var(--warn-soft); }
+  .seg.s3 { background: var(--code-bg); }
+  .seg.s4 { background: var(--ok-soft); }
+  .seg.s5 { background: var(--bad-soft); }
+  .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 12px; font-size: 0.9rem; }
+  .legend div { display: flex; gap: 8px; align-items: baseline; }
+  .legend i { flex: none; width: 12px; height: 12px; border-radius: 3px; display: inline-block; transform: translateY(1px); }
+
+  /* tables */
+  .table-wrap { overflow-x: auto; margin: 0 0 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: 0.8rem; font-weight: 600; }
+  .pill.block { background: var(--bad-soft); color: var(--bad); }
+  .pill.allow { background: var(--ok-soft); color: var(--ok); }
+  .pill.wait { background: var(--warn-soft); color: var(--warn); }
+
+  /* guard checker */
+  .checker { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .checker label { font-size: 0.88rem; color: var(--muted); display: block; margin: 8px 0 4px; }
+  .checker input[type=text] {
+    width: 100%; font: inherit; font-family: ui-monospace, Menlo, monospace; font-size: 0.92rem;
+    padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  }
+  .checker .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 0.92rem; }
+  .checker .row label { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--fg); }
+  .verdict { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; }
+  .verdict.allow { background: var(--ok-soft); color: var(--ok); }
+  .verdict.block { background: var(--bad-soft); color: var(--bad); }
+  .verdict.skip { background: var(--code-bg); color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chips button { font-family: ui-monospace, Menlo, monospace; font-size: 0.78rem; padding: 3px 8px; }
+
+  /* states */
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 12px; }
+  .states .st { border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 4px 10px; font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; }
+  .states .arrow { color: var(--muted); }
+
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin: 8px 0; }
+  details summary { cursor: pointer; font-weight: 600; }
+  details[open] summary { margin-bottom: 8px; }
+  dl.gloss { display: grid; grid-template-columns: minmax(120px, max-content) 1fr; gap: 6px 16px; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; color: var(--muted); }
+  @media (max-width: 560px) {
+    h1 { font-size: 1.6rem; }
+    dl.gloss { grid-template-columns: 1fr; }
+    dl.gloss dd { margin-bottom: 8px; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>The orchestrator kit, explained like you're five</h1>
+<p class="lede">You talk to one chat. Helpers work on tickets in their own rooms. When a helper needs you, it leaves a note, and the chat reads you the notes one at a time. This page walks through every part that makes that happen.</p>
+<nav class="toc">
+  <a href="#story">The story</a>
+  <a href="#cast">The cast</a>
+  <a href="#walk-diagram">Step through a ticket</a>
+  <a href="#report">A report, up close</a>
+  <a href="#queue">The queue</a>
+  <a href="#guard">The guard</a>
+  <a href="#go">Go</a>
+  <a href="#install">What install does</a>
+  <a href="#traps">Traps</a>
+  <a href="#gloss">Glossary</a>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="story">The story in one picture</h2>
+<p>Imagine a building with a front desk and four workshops.</p>
+<ul>
+  <li><strong>You</strong> only ever talk to the <strong>front desk</strong>, which is the orchestrator chat.</li>
+  <li>Each <strong>workshop</strong> holds one builder working on one ticket. The workshop is a separate copy of the code, so builders never trip over each other.</li>
+  <li>When a builder hits a question, they <strong>stop and slide a note under the door</strong>. The building's mail carrier, which is the desktop app, takes the note to the front desk.</li>
+  <li>The front desk keeps the notes in a <strong>tray</strong> (the queue) and reads you <strong>one at a time</strong>.</li>
+  <li>You say "B". The front desk <strong>walks your answer back</strong> to that builder, who carries on.</li>
+  <li>Builders can hand in <strong>drafts</strong> (draft MRs) whenever they like. Only <strong>you</strong> can say a draft is final, and then the front desk stamps it "ready".</li>
+  <li>A <strong>bouncer</strong> (the guard) stands at every workshop's tool cupboard. Dangerous tools stay locked, and builders can only hand in drafts, never final copies.</li>
+</ul>
+
+<div class="diagram-wrap" id="walk-diagram">
+<svg class="diagram" id="diagram" viewBox="0 0 780 470" role="img" aria-label="Diagram: you talk to the orchestrator, which uses the orch files and the desktop app to reach three worker sessions, each behind the guard hook in front of their tools.">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- edges -->
+  <g class="edgegroup" data-id="e-you-orch">
+    <path class="edge" d="M132 215 H198" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <text class="edge-label" x="138" y="205">voice / text</text>
+  </g>
+  <g class="edgegroup" data-id="e-orch-files">
+    <path class="edge" d="M280 272 V318" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <text class="edge-label" x="288" y="300">orch …</text>
+  </g>
+  <g class="edgegroup" data-id="e-orch-phone">
+    <path class="edge" d="M220 150 L132 92" marker-end="url(#arr)"/>
+    <text class="edge-label" x="150" y="140">ping</text>
+  </g>
+  <g class="edgegroup" data-id="e-orch-app">
+    <path class="edge" d="M362 190 H418" marker-end="url(#arr)"/>
+    <path class="edge" d="M418 238 H362" marker-end="url(#arr)"/>
+    <text class="edge-label" x="372" y="182">sends</text>
+    <text class="edge-label" x="372" y="254">notes</text>
+  </g>
+  <g class="edgegroup" data-id="e-app-workers">
+    <path class="edge" d="M522 90 H568" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <path class="edge" d="M522 190 H568" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <path class="edge" d="M522 290 H568" marker-end="url(#arr)" marker-start="url(#arr)"/>
+  </g>
+  <g class="edgegroup" data-id="e-workers-guard">
+    <path class="edge" d="M640 332 V352" marker-end="url(#arr)"/>
+  </g>
+  <g class="edgegroup" data-id="e-guard-tools">
+    <path class="edge" d="M640 394 V412" marker-end="url(#arr)"/>
+  </g>
+  <g class="edgegroup" data-id="e-guard-files">
+    <path class="edge" d="M568 373 H362" stroke-dasharray="4 4" marker-end="url(#arr)"/>
+    <text class="edge-label" x="410" y="366">is this a pinned worker?</text>
+  </g>
+
+  <!-- nodes -->
+  <g class="node" data-id="phone">
+    <rect x="20" y="50" width="112" height="56" rx="10"/>
+    <text x="34" y="74">Your phone</text>
+    <text class="sub" x="34" y="93">"FP-412 needs you"</text>
+  </g>
+  <g class="node" data-id="you">
+    <rect x="20" y="180" width="112" height="70" rx="10"/>
+    <text x="34" y="208">You</text>
+    <text class="sub" x="34" y="228">one window only</text>
+  </g>
+  <g class="node" data-id="orch">
+    <rect x="200" y="150" width="160" height="120" rx="10"/>
+    <text x="214" y="176">Orchestrator</text>
+    <text class="sub" x="214" y="196">a normal session with</text>
+    <text class="sub" x="214" y="212">the Orchestrator</text>
+    <text class="sub" x="214" y="228">output style</text>
+    <text class="sub" x="214" y="252">never writes code</text>
+  </g>
+  <g class="node" data-id="files">
+    <rect x="200" y="320" width="160" height="110" rx="10"/>
+    <text x="214" y="344">orch files</text>
+    <text class="sub mono" x="214" y="364">tickets/FP-412/worker</text>
+    <text class="sub mono" x="214" y="380">tickets/FP-412/sessions</text>
+    <text class="sub mono" x="214" y="396">queue/*.json</text>
+    <text class="sub" x="214" y="418">the tray + registry</text>
+  </g>
+  <g class="node" data-id="app">
+    <rect x="420" y="40" width="100" height="300" rx="10"/>
+    <text x="436" y="66">Desktop</text>
+    <text x="436" y="84">app</text>
+    <text class="sub" x="436" y="110">the mail</text>
+    <text class="sub" x="436" y="126">carrier</text>
+    <text class="sub" x="436" y="160">makes</text>
+    <text class="sub" x="436" y="176">worktrees,</text>
+    <text class="sub" x="436" y="192">carries</text>
+    <text class="sub" x="436" y="208">notes and</text>
+    <text class="sub" x="436" y="224">messages,</text>
+    <text class="sub" x="436" y="240">wakes the</text>
+    <text class="sub" x="436" y="256">orchestrator</text>
+  </g>
+  <g class="node" data-id="workers">
+    <rect x="570" y="50" width="190" height="80" rx="10"/>
+    <text x="584" y="78">Worker · FP-412</text>
+    <text class="sub" x="584" y="98">own worktree + branch</text>
+    <text class="sub" x="584" y="114">ticket-worker skill</text>
+    <rect x="570" y="150" width="190" height="80" rx="10"/>
+    <text x="584" y="178">Worker · FP-415</text>
+    <text class="sub" x="584" y="198">own worktree + branch</text>
+    <rect x="570" y="250" width="190" height="80" rx="10"/>
+    <text x="584" y="278">Worker · FP-418</text>
+    <text class="sub" x="584" y="298">own worktree + branch</text>
+  </g>
+  <g class="node" data-id="guard">
+    <rect x="570" y="354" width="190" height="40" rx="10"/>
+    <text x="584" y="379">Guard hook (bouncer)</text>
+  </g>
+  <g class="node" data-id="tools">
+    <rect x="570" y="414" width="190" height="44" rx="10"/>
+    <text x="584" y="432">Tools</text>
+    <text class="sub" x="584" y="450">git · npm · glab · psql …</text>
+  </g>
+</svg>
+
+<div class="stepper" id="walk">
+  <div class="step-controls">
+    <button id="prev" aria-label="Previous step">← Back</button>
+    <button id="next" class="primary" aria-label="Next step">Next →</button>
+    <button id="reset">Show all</button>
+    <span class="step-count" id="count"></span>
+  </div>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <div class="step-box" id="stepbox" aria-live="polite" style="margin-top:10px"></div>
+</div>
+</div>
+<p style="color:var(--muted);font-size:0.9rem;margin-top:8px">Press <strong>Next</strong> to follow one ticket from start to merged. The parts involved in each step light up. You can also use the ← → keys.</p>
+
+<!-- ============================================================ -->
+<h2 id="cast">The cast: every moving part</h2>
+<p>Each card gives the five-year-old version first, then what it really is and where it lives.</p>
+<div class="grid">
+  <div class="card">
+    <span class="tag">You</span>
+    <h3>The boss</h3>
+    <p class="eli5">You make the decisions and nothing else. You never open a worker's window. You answer in a word or two, out loud if you like.</p>
+    <p class="real"><strong>Really:</strong> you, talking to one desktop session by keyboard or macOS Voice Control.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Orchestrator</span>
+    <h3>The front desk</h3>
+    <p class="eli5">It takes your requests, hires builders, reads you their notes one at a time, and carries your answers back. It never builds anything itself.</p>
+    <p class="real"><strong>Really:</strong> a normal desktop session switched to the <code>Orchestrator</code> output style.<br><strong>File:</strong> <code>~/.claude/output-styles/orchestrator.md</code>. An output style is part of the system prompt, so it can't be forgotten when the chat gets long and is summarized.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Worker</span>
+    <h3>A builder</h3>
+    <p class="eli5">One builder per ticket. It works alone. When it needs you, it stops and leaves a note instead of guessing.</p>
+    <p class="real"><strong>Really:</strong> a desktop session the orchestrator started with <code>start_session</code>. Its brief tells it to load the <code>ticket-worker</code> skill.<br><strong>File:</strong> <code>~/.claude/skills/ticket-worker/SKILL.md</code>.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Worktree</span>
+    <h3>A builder's workshop</h3>
+    <p class="eli5">Every builder gets their own copy of the code, so two builders never mess up each other's work.</p>
+    <p class="real"><strong>Really:</strong> a git worktree that the app makes under <code>.claude/worktrees/</code> on its own branch. The worker renames the branch to Linear's name, for example <code>pasha/fp-412-soft-delete-users</code>.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Desktop app</span>
+    <h3>The mail carrier</h3>
+    <p class="eli5">It builds the workshops, carries the builders' notes to the front desk, and carries your answers back. It also taps the front desk on the shoulder when mail arrives.</p>
+    <p class="real"><strong>Really:</strong> built-in app features: <code>start_session</code>, side-session notes (when a worker ends a turn, the orchestrator gets about the first 400 characters of it and is woken), and <code>SendMessage</code>. No code in the kit does this.</p>
+  </div>
+  <div class="card">
+    <span class="tag">orch</span>
+    <h3>The tray and the sign-in sheet</h3>
+    <p class="eli5">A sign-in sheet of which builders are hired (with each builder's badge number), and a tray of notes waiting for you.</p>
+    <p class="real"><strong>Really:</strong> one bash script that reads and writes small JSON files.<br><strong>File:</strong> <code>claude/orchestrator/bin/orch</code> in dot-files, linked to <code>~/.claude/orchestrator/bin/orch</code>. Its data lives in a real <code>~/.claude/orchestrator/</code> folder (<code>tickets/</code>, <code>queue/</code>, <code>done/</code>), so it never lands in the repo. Only the orchestrator uses it.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Guard</span>
+    <h3>The bouncer</h3>
+    <p class="eli5">It stands at each builder's tool cupboard and checks every tool before it's used. The first time it sees a new builder, it writes down their badge number, so a builder can't sneak past by changing hats. Dangerous tools stay locked.</p>
+    <p class="real"><strong>Really:</strong> a PreToolUse hook that runs before every Bash, Edit and Write call in <em>every</em> session. It stays silent unless the session is a registered worker, which it recognizes by its pinned session ID.<br><strong>File:</strong> <code>claude/orchestrator/hooks/worker-guard.sh</code> in dot-files.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Go</span>
+    <h3>"This draft is final"</h3>
+    <p class="eli5">Builders hand in drafts. When you say "go", the front desk stamps the draft "ready", and only the front desk can do that.</p>
+    <p class="real"><strong>Really:</strong> <code>orch go FP-415</code> checks that an mr-ready note is waiting, reads its MR number (<code>!1130</code>), and runs <code>glab mr update 1130 --ready</code>. An "ask" permission rule makes the app pop a confirm box first.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Phone ping</span>
+    <h3>The doorbell</h3>
+    <p class="eli5">When a note arrives and you've walked away, your phone buzzes: "FP-412 needs you."</p>
+    <p class="real"><strong>Really:</strong> the <code>PushNotification</code> tool. It reaches your phone when Remote Control is on, and skips itself if you're already looking at the screen.</p>
+  </div>
+  <div class="card">
+    <span class="tag">Installer</span>
+    <h3>The house plans</h3>
+    <p class="eli5">Every part lives in your dot-files repo, like the rest of your Claude setup, so changes are tracked and you can undo them.</p>
+    <p class="real"><strong>Really:</strong> <code>install-mac.sh</code> links the files into <code>~/.claude/</code>, and <code>claude/settings.json</code> (already linked) registers the hook and rules. Details are <a href="#install">below</a>.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="report">A worker's report, up close</h2>
+<p>This is the note a builder slides under the door. Every part is there for a reason.</p>
+<div class="anatomy">
+  <div class="msg">
+    <span class="seg s1">FP-412</span> · <span class="seg s2">question</span> · <span class="seg s3">Should the admin export include soft-deleted users?</span>
+    <span class="seg s4">A) exclude, like the API B) include with deleted_at C) separate ticket.</span>
+    <span class="seg s5">I'd pick B: support uses it for deletion requests.</span>
+  </div>
+  <div class="legend">
+    <div><i style="background:var(--accent-soft)"></i><span><strong>Ticket first</strong>, so you always know what you're answering.</span></div>
+    <div><i style="background:var(--warn-soft)"></i><span><strong>Type</strong>: question, approval, blocked, mr-ready or done.</span></div>
+    <div><i style="background:var(--code-bg)"></i><span><strong>One question</strong>, short enough to hear once.</span></div>
+    <div><i style="background:var(--ok-soft)"></i><span><strong>2–4 lettered options</strong>, each under 12 words, so you can answer "B".</span></div>
+    <div><i style="background:var(--bad-soft)"></i><span><strong>A recommendation</strong> with a reason, so "yes" is also an answer.</span></div>
+  </div>
+</div>
+<div class="callout">
+  <strong>Why it has to fit in 300 characters:</strong> the app hands the orchestrator only about the first 400 characters of a worker's turn. So the worker puts the whole decision in its <code>wrap_up</code> recap, which is capped at 300. Longer detail goes after it, and the orchestrator can fetch that if you ask "tell me more about 412".
+</div>
+
+<h3 style="margin-top:20px">The five report types</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Type</th><th>Like five</th><th>When a worker uses it</th></tr></thead>
+  <tbody>
+    <tr><td><code>question</code></td><td>"Which way should I build it?"</td><td>Scope is unclear, or a choice has real tradeoffs.</td></tr>
+    <tr><td><code>approval</code></td><td>"I need a grown-up for this part."</td><td>It needs something dangerous: a DB write, applying a migration, a deploy, a merge, deleting a branch, a prod config change. <em>You</em> do it, or pick another way.</td></tr>
+    <tr><td><code>blocked</code></td><td>"I'm stuck and can't fix it myself."</td><td>A check fails for an out-of-scope reason, or the guard stopped it.</td></tr>
+    <tr><td><code>mr-ready</code></td><td>"My draft is finished. Can it be final?"</td><td>Lint, format and tests pass, the code review is clean, and everything is pushed to its draft MR. The report names the MR (<code>!1130</code>) and asks for "go".</td></tr>
+    <tr><td><code>done</code></td><td>"All done! Here's the link."</td><td>The front desk took the MR out of draft after your go, and nothing is left for the builder to do.</td></tr>
+  </tbody>
+</table></div>
+<p>Everything else, such as naming, test layout and small refactors, the worker decides on its own. That's what keeps the tray short.</p>
+
+<!-- ============================================================ -->
+<h2 id="queue">The queue (the tray of notes)</h2>
+<p>Each note is one small JSON file in <code>~/.claude/orchestrator/queue/</code>, named by time, a process number and then the ticket, for example <code>20261117T091502-48213-FP-412.json</code>. Sorting by name gives oldest first, and the process number keeps two notes from the same second apart.</p>
+<pre><code>{
+  "ticket": "FP-412",
+  "type": "question",
+  "text": "FP-412 · question · Should the admin export include …",
+  "session": "local_9e0e44a3-…",      ← which worker to answer
+  "created": "2026-11-17T09:15:02Z",
+  "status": "open"
+}</code></pre>
+
+<h3>A note's life</h3>
+<div class="states">
+  <span class="st">open</span><span class="arrow">→ you say "next" →</span>
+  <span class="st">presented</span><span class="arrow">→ you answer →</span>
+  <span class="st">answered</span>
+</div>
+<ul>
+  <li>A note you were shown but didn't answer stays <code>presented</code>. It comes back from "next" once nothing newer is waiting, so a skipped note is never lost.</li>
+  <li><code>superseded</code>: the same worker sent a newer note before you answered, so the old one is set aside. You only ever see a ticket's latest question.</li>
+  <li><code>closed</code>: you finished the ticket with <code>orch done</code>.</li>
+</ul>
+
+<h3>The orch commands, in plain words</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Command</th><th>What it does</th><th>Who runs it, when</th></tr></thead>
+  <tbody>
+    <tr><td><code>orch start FP-412</code></td><td>Writes the builder on the sign-in sheet. Refuses if 4 are already in, or FP-412 already has one. Finished tickets don't count.</td><td>Orchestrator, before starting a worker. This must come first, so the bouncer knows the new worker from its very first command.</td></tr>
+    <tr><td><code>orch link FP-412 local_…</code></td><td>Writes down the worker's session address so answers can find it.</td><td>Orchestrator, right after <code>start_session</code> returns.</td></tr>
+    <tr><td><code>orch add FP-412 question &lt;&lt;'EOF'</code></td><td>Puts a note in the tray. The text comes in through a quoted heredoc, so backticks or <code>$(…)</code> in a note can never run.</td><td>Orchestrator, each time the app delivers a worker's note.</td></tr>
+    <tr><td><code>orch next</code></td><td>Takes the oldest new note, or else the oldest skipped one, marks it presented, and says how many are still waiting.</td><td>Orchestrator, when you say "next".</td></tr>
+    <tr><td><code>orch answered FP-412 &lt;&lt;'EOF'</code></td><td>Marks the note answered and records what you said.</td><td>Orchestrator, as it sends your answer.</td></tr>
+    <tr><td><code>orch go FP-415</code></td><td>Refuses unless FP-415's waiting note is mr-ready and names its MR. Then it takes that MR out of draft and marks the note answered.</td><td>Orchestrator, only after you plainly say "go". The app asks you to confirm.</td></tr>
+    <tr><td><code>orch board</code> / <code>list</code> / <code>count</code></td><td>One line per ticket, waiting notes, number waiting.</td><td>Orchestrator, when you say "board".</td></tr>
+    <tr><td><code>orch done FP-412</code></td><td>Crosses the builder off the sheet and closes its notes. The ticket's folder moves to <code>done/</code>, not deleted.</td><td>Orchestrator, only after the worker session is archived. Until then the bouncer keeps watching it.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- ============================================================ -->
+<h2 id="guard">The guard (the bouncer)</h2>
+<p>Every time <em>any</em> Claude session is about to run a shell command or edit a file, Claude Code first asks the guard script "OK?". The guard answers in three steps:</p>
+<ol>
+  <li><strong>Do I know this builder's badge?</strong> Every call comes with a session ID. If that ID is pinned to a ticket (<code>tickets/FP-412/sessions</code>), it's a builder, whatever branch or folder it's in now. Changing hats doesn't help.</li>
+  <li><strong>Is this a new builder?</strong> If the ID isn't pinned, the guard checks three things: the call comes from an app-made workshop (<code>.claude/worktrees/</code>), the branch names a ticket (<code>fp-412</code>), and that ticket is on the sign-in sheet. If all three hold, it pins the ID. If any is missing, it lets everything through. That's why <em>your own</em> sessions, including one on your main checkout on an <code>fp-</code> branch, are never affected.</li>
+  <li><strong>Is the tool dangerous?</strong> It cuts the command into pieces at <code>;</code>, <code>&amp;&amp;</code>, <code>|</code> and so on, ignores quoted text and heredoc bodies, and judges each piece by its leading words. If a piece is dangerous, it blocks the call. Technically it exits with code 2, and Claude Code shows the worker the reason. The worker is told: don't work around it, report it.</li>
+</ol>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Command or action</th><th>Verdict</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>npm run lint</code>, <code>git commit -m "… push to main …"</code>, editing code</td><td><span class="pill allow">allowed</span></td><td>Normal work. Words inside quotes don't count.</td></tr>
+    <tr><td><code>rm foo.ts</code>, <code>git rm -r</code>, <code>git branch -m</code></td><td><span class="pill allow">allowed</span></td><td>Normal work. The files are in git anyway, and the branch rename is part of setup.</td></tr>
+    <tr><td><code>grep psql docs/</code>, <code>glab mr list --merged</code></td><td><span class="pill allow">allowed</span></td><td>Read-only. <code>psql</code> here is an argument, not the command.</td></tr>
+    <tr><td><code>prisma migrate dev --create-only</code></td><td><span class="pill allow">allowed</span></td><td>Writing a migration against your local DB is normal schema work.</td></tr>
+    <tr><td><code>git push -u origin HEAD</code> on its own ticket branch</td><td><span class="pill allow">allowed</span></td><td>Builders push their own drafts whenever they like.</td></tr>
+    <tr><td><code>glab mr create --draft …</code></td><td><span class="pill allow">allowed</span></td><td>Draft MRs are fine.</td></tr>
+    <tr><td><code>glab mr create</code> without <code>--draft</code>, <code>glab mr update --ready</code></td><td><span class="pill wait">yours</span></td><td>Only the front desk takes an MR out of draft, on your go.</td></tr>
+    <tr><td><code>git push origin HEAD:qa</code>, <code>HEAD:refs/heads/master</code>, another branch</td><td><span class="pill block">blocked</span></td><td>CI deploys from master, qa, review and v2. Builders push only their own branch.</td></tr>
+    <tr><td><code>git push --force</code>, <code>--all</code>, <code>--delete</code>, <code>git branch -D</code> or <code>-f</code></td><td><span class="pill block">blocked</span></td><td>Rewrites or deletes shared history.</td></tr>
+    <tr><td><code>git reset --hard</code>, <code>git clean -f</code>, <code>rm -rf</code></td><td><span class="pill block">blocked</span></td><td>Throws work away for good.</td></tr>
+    <tr><td><code>--no-verify</code></td><td><span class="pill block">blocked</span></td><td>Skips the safety checks.</td></tr>
+    <tr><td><code>glab mr merge</code> / <code>approve</code>, <code>glab api</code>, <code>glab ci trigger</code></td><td><span class="pill block">blocked</span></td><td>Merging is always yours, and manual CI jobs deploy.</td></tr>
+    <tr><td><code>psql</code>, <code>mysql</code>, <code>redis-cli</code></td><td><span class="pill block">blocked</span></td><td>Talks to a real database.</td></tr>
+    <tr><td><code>prisma migrate deploy|reset|resolve</code>, <code>prisma db push|execute|seed</code>, <code>npm run start:migrator</code>, <code>npm run migrate*</code></td><td><span class="pill block">blocked</span></td><td>Applies changes to a database.</td></tr>
+    <tr><td><code>kubectl</code>, <code>helm</code>, <code>terraform</code></td><td><span class="pill block">blocked</span></td><td>Touches clusters and infra.</td></tr>
+    <tr><td><code>eval …</code>, <code>bash -c '…'</code></td><td><span class="pill block">blocked</span></td><td>Hides the real command from the bouncer.</td></tr>
+    <tr><td>Anything naming <code>.env.*production</code> or the orchestrator's folder, globs like <code>~/.c*/orch*</code> included</td><td><span class="pill block">blocked</span></td><td>Production credentials, and the tray and badge list.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Try it: would the guard let this through?</h3>
+<div class="checker">
+  <label for="cmd">Command a worker wants to run</label>
+  <input type="text" id="cmd" value="git push origin HEAD:qa" autocomplete="off" spellcheck="false">
+  <div class="row">
+    <label><input type="checkbox" id="c-worker" checked> this session is a pinned FP-412 worker</label>
+    <label><input type="checkbox" id="c-own" checked> it's still on its own <code>fp-412</code> branch</label>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="verdict" id="verdict"></div>
+</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-top:6px">This mirrors the real script's rules in the browser, simplified. The script itself is the source of truth.</p>
+
+<div class="callout">
+  <strong>Why a hook, and not just permission rules?</strong> Permission rules match the start of a command, and they're easy to sidestep: <code>git -C . push origin HEAD:qa</code> doesn't start with <code>git push</code>. The guard reads each piece of the command, so it catches that, and it runs even in Auto mode.
+</div>
+<div class="callout warn">
+  <strong>It's a backstop, not a lock.</strong> It catches honest mistakes. A command hidden inside a double-quoted <code>$(…)</code> gets past it, because quoted text is skipped so commit messages don't trip it.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="go">Go, step by step</h2>
+<p>Builders push and open <strong>draft</strong> MRs on their own. "Go" is the one step that's yours: taking the draft out of draft. It has three checks:</p>
+<ol>
+  <li>The orchestrator checks that the note is <code>mr-ready</code> and that you plainly said go, yes or ship it. It never decides go for you.</li>
+  <li>It runs <code>~/.claude/orchestrator/bin/orch go FP-415</code>, always spelled exactly like that. An <strong>ask rule</strong> in your settings matches that spelling and makes the app pop a confirm box. You say "click Allow".</li>
+  <li>The script itself refuses unless FP-415's waiting note really is <code>mr-ready</code> and names the MR (<code>!1130</code>). Then it runs <code>glab mr update 1130 --ready</code>. If glab fails, nothing is marked answered.</li>
+  <li>The orchestrator messages the worker: <code>GO FP-415: !1130 is out of draft and ready for review. Report done and stop.</code></li>
+  <li>The worker reports <code>done</code>. Merging is still yours, in GitLab.</li>
+</ol>
+<p>A worker can't take its own MR out of draft, because the guard blocks <code>glab mr update --ready</code>, non-draft <code>glab mr create</code>, and <code>glab api</code>.</p>
+
+<!-- ============================================================ -->
+<h2 id="install">Where everything lives</h2>
+<p>Everything is in your dot-files repo, and <code>install-mac.sh</code> links it into place:</p>
+<pre><code>dot-files/claude/                              ~/.claude/
+├── output-styles/orchestrator.md   ──link──▶  output-styles/orchestrator.md   ← front desk's instructions
+├── skills/ticket-worker/SKILL.md   ──link──▶  skills/ticket-worker/SKILL.md   ← builders' instructions
+└── orchestrator/
+    ├── bin/orch                    ──link──▶  orchestrator/bin/orch           ← tray + sign-in sheet
+    ├── hooks/worker-guard.sh       ──link──▶  orchestrator/hooks/worker-guard.sh  ← the bouncer
+    ├── README.md, explainer.html
+                                               orchestrator/  (a real folder, not a link)
+                                               ├── tickets/FP-412/worker, sessions
+                                               ├── queue/   one JSON per note
+                                               └── done/    finished tickets</code></pre>
+<p><code>claude/settings.json</code> is already linked to <code>~/.claude/settings.json</code>, so it gets four entries as a normal, reviewable diff:</p>
+<ul>
+  <li><strong>Hook:</strong> run <code>worker-guard.sh</code> before every Bash, Edit, Write and NotebookEdit call. It sits next to your existing <code>lint-on-commit.sh</code> hook.</li>
+  <li><strong>Allow rule:</strong> <code>Bash(~/.claude/orchestrator/bin/orch *)</code>, so the front desk isn't asked permission for every note.</li>
+  <li><strong>Two ask rules:</strong> <code>orch go</code> under both the <code>~/</code> and the <code>/Users/pasha/</code> spellings. This is the confirm box for go.</li>
+</ul>
+
+<h3>Your first run</h3>
+<ol>
+  <li>Restart the Claude app so it picks up the new style, skill and hook.</li>
+  <li>Open a session on the repo's main checkout and call it "Orchestrator".</li>
+  <li>Set <strong>Output style → Orchestrator</strong> and <strong>Permission mode → Auto</strong>.</li>
+  <li>Optional: turn on Remote Control for it, so the doorbell reaches your phone.</li>
+  <li>Say "start FP-412, soft delete users…".</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="traps">Traps, and how the kit handles them</h2>
+<details open>
+  <summary>Different permission modes make answers stall</summary>
+  <p>Like five: if the front desk and a builder speak different "languages" (permission modes), the mail carrier holds the front desk's letters until you OK each one.</p>
+  <ul>
+    <li>Really: <code>SendMessage</code> to a session in a different mode waits for that session's user to approve it.</li>
+    <li>Fix in the kit: workers are started without a <code>permission_mode</code>, so they copy the orchestrator's. Pick Auto for the orchestrator before starting workers.</li>
+  </ul>
+</details>
+<details>
+  <summary>A permission box inside a worker doesn't ring your doorbell</summary>
+  <p>Like five: if a builder is stuck waiting for someone to click "Allow" in its own room, it hasn't slid a note under the door, so the front desk doesn't know.</p>
+  <ul>
+    <li>Really: a note only fires when a worker <em>ends its turn</em>. A permission prompt pauses mid-turn.</li>
+    <li>Fix in the kit: Auto mode plus the guard means most things are allowed or blocked outright, so prompts are rare. "Board" flags a worker that has been running a long time and gives you its link. That's the one time you'd open a worker.</li>
+  </ul>
+</details>
+<details>
+  <summary>Approvals are yours, not the worker's</summary>
+  <p>Like five: even if you say "yes, use the big saw", the bouncer still won't open that cupboard for a builder.</p>
+  <ul>
+    <li>Really: the guard blocks DB writes, migrations and the like even after a yes, by design. Asking a worker to do what the orchestrator itself may not do would sneak around your permissions.</li>
+    <li>So for an <code>approval</code> note, your answers are "I'll run it myself" or "find another way". The orchestrator relays that, and the worker carries on.</li>
+  </ul>
+</details>
+<details>
+  <summary>Notes pause when you've been away a while</summary>
+  <p>Like five: after a long stack of notes with nobody at the front desk, the mail carrier stops ringing the bell and just leaves the notes in the hall.</p>
+  <ul>
+    <li>Really: after many side-session wake-ups in a row with no message from you, the app holds further notes until the orchestrator's next turn, so no phone ping fires.</li>
+    <li>Fix in the kit: on every message from you, the orchestrator first checks for idle workers whose latest report isn't in the tray, and pulls it in. So say anything and it catches up.</li>
+    <li>The tray is plain files, so nothing is lost if the chat gets long and is summarized, or the app restarts.</li>
+  </ul>
+</details>
+<details>
+  <summary>"Merged" isn't "finished" until the workshop is closed</summary>
+  <ul>
+    <li>When you say "412 merged", the orchestrator first offers to archive the worker session, which removes its worktree.</li>
+    <li>Only after the archive goes through does it run <code>orch done</code>. Until then the bouncer keeps watching that builder, and it still counts toward the cap of 4.</li>
+  </ul>
+</details>
+<details>
+  <summary>Too many builders</summary>
+  <ul>
+    <li>Your attention is the bottleneck, not the builders. <code>orch start</code> refuses a 5th by default.</li>
+    <li>Change the cap with <code>ORCH_MAX_WORKERS</code>. Somewhere between 3 and 5 works best.</li>
+  </ul>
+</details>
+<details>
+  <summary>Not proven yet (check on your first run)</summary>
+  <ul>
+    <li>That the app's Output style menu lists styles from <code>~/.claude/output-styles/</code>.</li>
+    <li>That the "go" confirm box still appears in Auto mode.</li>
+    <li>That the hook input carries a session ID in desktop worker sessions, and that a worker's subagents share it.</li>
+    <li>That renaming the branch inside an app-made worktree doesn't confuse the app.</li>
+    <li>That workers reliably end their turn with a report instead of waiting around.</li>
+  </ul>
+</details>
+
+<!-- ============================================================ -->
+<h2 id="gloss">Glossary</h2>
+<dl class="gloss">
+  <dt>Session</dt><dd>One chat with Claude in the desktop app. The orchestrator is one, and each worker is one.</dd>
+  <dt>Turn</dt><dd>One go of Claude working until it stops and hands control back. A worker's report is the end of a turn.</dd>
+  <dt>wrap_up</dt><dd>The tool a desktop session calls at the end of a turn. Its "recap" is the short summary the starting session receives.</dd>
+  <dt>Side-session note</dt><dd>The app's automatic message to the session that started a worker: about the first 400 characters of the worker's turn.</dd>
+  <dt>SendMessage</dt><dd>How one session sends text to another. The orchestrator uses it to deliver your answers.</dd>
+  <dt>start_session</dt><dd>The app tool that creates a worker session, its worktree and its branch.</dd>
+  <dt>Worktree</dt><dd>An extra checkout of the same git repo in another folder, on its own branch.</dd>
+  <dt>Output style</dt><dd>A block of instructions placed in a session's system prompt. It sets how that session behaves for its whole life.</dd>
+  <dt>Skill</dt><dd>A packaged set of instructions a session loads when needed. Workers load <code>ticket-worker</code>.</dd>
+  <dt>PreToolUse hook</dt><dd>A script Claude Code runs before a tool call. Exit code 2 blocks the call and tells Claude why.</dd>
+  <dt>Permission mode</dt><dd>How much a session may do without asking. Auto lets a classifier approve routine actions.</dd>
+  <dt>Ask / allow rule</dt><dd>Settings entries that make a command always prompt, or never prompt.</dd>
+</dl>
+
+</main>
+
+<script>
+(function () {
+  // ---------- stepper ----------
+  var steps = [
+    { who: "You", title: "You ask for a ticket", on: ["you", "orch", "e-you-orch"],
+      body: "You say: \"Start FP-412, soft delete users. Admin can soft-delete, list and API hide them.\"",
+      under: "That's the only window you use. Short or misheard words are fine, since \"four twelve\" is read as FP-412." },
+    { who: "Orchestrator", title: "It signs the builder in", on: ["orch", "files", "e-orch-files"],
+      body: "It runs orch start FP-412, which writes tickets/FP-412/worker.",
+      under: "This happens first so the bouncer recognizes the worker from its very first command. If 4 builders are already working, it refuses and tells you who's busy." },
+    { who: "Orchestrator → app", title: "It hires a builder", on: ["orch", "app", "workers", "e-orch-app", "e-app-workers"],
+      body: "It calls start_session with a worktree, the name fp-412, and a brief: \"You are the ticket worker for FP-412. Load the ticket-worker skill first.\"",
+      under: "The app creates the worktree and branch and starts a new session. No permission mode is passed, so the worker copies the orchestrator's mode. That matters later." },
+    { who: "Orchestrator", title: "It writes down the builder's address", on: ["orch", "files", "e-orch-files"],
+      body: "It runs orch link FP-412 local_… with the session id the app returned.",
+      under: "Now your answers can find this worker later." },
+    { who: "Worker", title: "The builder gets set up", on: ["workers"],
+      body: "The worker loads the ticket-worker skill, reads FP-412 from Linear, merges the latest origin/master, and renames its branch to Linear's name.",
+      under: "From here on it follows the repo's AGENTS.md for code, commits, checks and MR format." },
+    { who: "Worker + guard", title: "It builds, past the bouncer", on: ["workers", "guard", "tools", "files", "e-workers-guard", "e-guard-tools", "e-guard-files"],
+      body: "The worker edits code and runs lint and tests. On its very first command, the guard sees a registered fp-412 branch in an app-made worktree and pins the session's ID to FP-412 in tickets/FP-412/sessions. After that, every command is checked: is any piece of it dangerous?",
+      under: "Normal work goes through, including pushing its own branch and opening a draft MR. Dangerous commands are refused with a reason, and the worker reports instead of hunting for a workaround." },
+    { who: "Worker", title: "It hits a real decision and stops", on: ["workers"],
+      body: "Should the admin export include soft-deleted users? That's a real tradeoff, so the worker ends its turn with a recap: \"FP-412 · question · … A) … B) … C) … I'd pick B: …\"",
+      under: "It doesn't guess and doesn't wait around. Ending the turn is how it sends the note." },
+    { who: "App → orchestrator", title: "The mail carrier delivers the note", on: ["app", "orch", "workers", "e-orch-app", "e-app-workers"],
+      body: "The app sees the worker's turn end and hands the orchestrator about the first 400 characters, waking it up if it was idle.",
+      under: "That's why the whole question has to fit at the start of the recap." },
+    { who: "Orchestrator", title: "The note goes in the tray, and your phone buzzes", on: ["orch", "files", "phone", "e-orch-files", "e-orch-phone"],
+      body: "It runs orch add FP-412 question \"…\", then sends a push notification: \"FP-412 needs you\".",
+      under: "If you're already looking at the screen, the notification skips itself. The tray is plain files, so it survives restarts." },
+    { who: "You → orchestrator", title: "You say \"next\"", on: ["you", "orch", "files", "e-you-orch", "e-orch-files"],
+      body: "It runs orch next and reads you one item: \"FP-412 · question … A) Exclude B) Include with deleted_at C) Separate ticket. I'd pick B. 1 more waiting.\"",
+      under: "One at a time, always labeled, always as options." },
+    { who: "You → orchestrator → worker", title: "You say \"B\"", on: ["you", "orch", "app", "workers", "files", "e-you-orch", "e-orch-app", "e-app-workers", "e-orch-files"],
+      body: "The orchestrator spells it out (\"Option B: include soft-deleted users with a deleted_at column\"), runs orch answered, and sends SendMessage \"ANSWER FP-412: …\" to the worker.",
+      under: "The worker picks up exactly where it stopped. It still has its whole conversation." },
+    { who: "Worker + guard", title: "It finishes its draft and asks to make it final", on: ["workers", "guard", "tools", "e-workers-guard", "e-guard-tools"],
+      body: "Lint, format and tests pass. It runs your code-review skill on its diff, fixes the real findings, pushes its own branch, and makes sure its draft MR is up to date. Then it reports: \"FP-412 · mr-ready · Draft !1130, checks green, review clean. Title: [FP-412] … -ad. Go?\"",
+      under: "Pushing its own branch and opening a draft MR never needed you. The guard only allows draft MRs." },
+    { who: "You → orchestrator", title: "You say \"go\"", on: ["you", "orch", "files", "e-you-orch", "e-orch-files"],
+      body: "The app pops a confirm box for orch go FP-412, and you allow it. The script checks that the waiting note is mr-ready and names !1130, then runs glab mr update 1130 --ready.",
+      under: "Only the orchestrator can take an MR out of draft, only for an mr-ready note, and only when you plainly said go." },
+    { who: "Orchestrator → worker", title: "The builder hears it's final", on: ["orch", "app", "workers", "e-orch-app", "e-app-workers"],
+      body: "The orchestrator messages \"GO FP-412: !1130 is out of draft and ready for review.\" The worker reports \"FP-412 · done · !1130 is ready for review.\"",
+      under: "Nobody merges. Merging stays yours, in GitLab." },
+    { who: "You → orchestrator", title: "You say \"412 merged\"", on: ["you", "orch", "files", "app", "workers", "e-you-orch", "e-orch-files", "e-orch-app"],
+      body: "It offers to archive the worker session, which removes its worktree. Only after the archive goes through does it run orch done FP-412, which crosses it off and closes its notes.",
+      under: "Until the archive, the guard keeps watching that worker. After it, a slot is free again for the next ticket." }
+  ];
+
+  var svg = document.getElementById("diagram");
+  var parts = svg.querySelectorAll("[data-id]");
+  var box = document.getElementById("stepbox");
+  var count = document.getElementById("count");
+  var dots = document.getElementById("dots");
+  var prev = document.getElementById("prev");
+  var next = document.getElementById("next");
+  var i = -1;
+
+  steps.forEach(function (_, k) {
+    var d = document.createElement("span");
+    d.title = "Step " + (k + 1);
+    d.addEventListener("click", function () { go(k); });
+    dots.appendChild(d);
+  });
+
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function codeify(s) {
+    return esc(s).replace(/\b(orch [a-z]+(?: FP-\d+)?(?: local_…)?|start_session|SendMessage|tickets\/FP-\d+\/(?:worker|sessions)|origin\/master|git push|glab mr update 1130 --ready|ticket-worker|code-review)\b/g, "<code>$1</code>");
+  }
+
+  function go(k) {
+    i = k;
+    if (i < 0) {
+      svg.classList.remove("stepping");
+      parts.forEach(function (p) { p.classList.remove("on"); });
+      box.innerHTML = '<div class="who">Overview</div><h3>All parts at once</h3><p>Press <strong>Next</strong> to follow FP-412 from "start" to "merged". There are ' + steps.length + ' steps.</p>';
+      count.textContent = "";
+    } else {
+      var s = steps[i];
+      svg.classList.add("stepping");
+      parts.forEach(function (p) { p.classList.toggle("on", s.on.indexOf(p.dataset.id) !== -1); });
+      box.innerHTML = '<div class="who">' + esc(s.who) + '</div><h3>' + (i + 1) + '. ' + esc(s.title) + '</h3><p>' + codeify(s.body) + '</p><p class="under">' + codeify(s.under) + '</p>';
+      count.textContent = "Step " + (i + 1) + " of " + steps.length;
+    }
+    prev.disabled = i < 0;
+    next.disabled = i >= steps.length - 1;
+    Array.prototype.forEach.call(dots.children, function (d, k2) { d.classList.toggle("on", k2 === i); });
+  }
+  prev.addEventListener("click", function () { go(i - 1); });
+  next.addEventListener("click", function () { go(i + 1); });
+  document.getElementById("reset").addEventListener("click", function () { go(-1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "ArrowRight" && i < steps.length - 1) go(i + 1);
+    if (e.key === "ArrowLeft" && i >= 0) go(i - 1);
+  });
+  go(-1);
+
+  // ---------- guard checker (mirrors worker-guard.sh, simplified) ----------
+  var OWN = "pasha/fp-412-soft-delete-users";
+  function segmentsOf(c) {
+    c = c.replace(/(<<-?\s*(['"]?)(\w+)\2)([^\n]*)\n[\s\S]*?\n[ \t]*\3[ \t]*(?=\n|$)/g, "H$4");
+    var o = "", q = "", esc = false;
+    for (var i = 0; i < c.length; i++) {
+      var ch = c[i];
+      if (q === "'") { if (ch === "'") { q = ""; o += "Q"; } continue; }
+      if (q === '"') {
+        if (esc) { esc = false; continue; }
+        if (ch === "\\") { esc = true; continue; }
+        if (ch === '"') { q = ""; o += "Q"; }
+        continue;
+      }
+      if (ch === "'" || ch === '"') { q = ch; continue; }
+      o += ch;
+    }
+    return o.split(/&&|\|\||[;|\n()`]|\$\(/);
+  }
+  function base(w) { return w.replace(/^.*\//, ""); }
+  function checkGit(a, own) {
+    var sub = "";
+    while (a.length) {
+      var x = a.shift();
+      if (x === "-C" || x === "-c" || x === "--git-dir" || x === "--work-tree" || x === "--namespace") { a.shift(); continue; }
+      if (x[0] === "-") continue;
+      sub = x; break;
+    }
+    if (a.indexOf("--no-verify") >= 0) return "--no-verify skips the repo's hooks";
+    if (sub === "push") {
+      if (!/(^|[^a-z0-9])fp-412([^0-9]|$)/i.test(own)) return "you can only push your own FP-412 branch, and the current branch is '" + own + "'";
+      var pos = [], skip = false;
+      for (var i = 0; i < a.length; i++) {
+        var x = a[i];
+        if (skip) { skip = false; continue; }
+        if (/^(-f|--force|--force-with-lease.*|--force-if-includes|--mirror|--all|--tags|--delete|-d|--prune)$/.test(x)) return "git push " + x + ": push only your own branch, without force";
+        if (/^(-o|--push-option|--repo|--receive-pack|--exec)$/.test(x)) { skip = true; continue; }
+        if (x[0] === "-") continue;
+        pos.push(x);
+      }
+      for (var j = 1; j < pos.length; j++) {
+        var r = pos[j];
+        if (r[0] === "+") return "force refspec '" + r + "'";
+        var src = r, dst = r;
+        if (r.indexOf(":") >= 0) { src = r.slice(0, r.indexOf(":")); dst = r.slice(r.indexOf(":") + 1); }
+        if (!src || !dst) return "deleting a remote branch";
+        if (dst === "HEAD") dst = own;
+        dst = dst.replace(/^refs\/heads\//, "");
+        if (dst !== own) return "you can only push to your own branch '" + own + "', not '" + dst + "'";
+      }
+    }
+    if (sub === "branch" && a.some(function (x) { return /^(-d|-D|--delete|-f|--force|-M|-C)$/.test(x); })) return "deleting or force-moving branches";
+    if (sub === "reset" && a.indexOf("--hard") >= 0) return "git reset --hard throws work away";
+    if (sub === "clean" && a.some(function (x) { return /^-[a-zA-Z]*f/.test(x); })) return "git clean -f throws work away";
+    if (sub === "commit" && a.indexOf("-n") >= 0) return "git commit -n skips the repo's hooks";
+    if (/^(filter-branch|filter-repo|update-ref)$/.test(sub)) return "git " + sub + " rewrites refs";
+    return null;
+  }
+  function checkGlab(a) {
+    var two = (a[0] || "") + " " + (a[1] || "");
+    if (a[0] === "api") return "glab api (raw API calls)";
+    if (two === "mr merge" || two === "mr approve") return "merging or approving MRs is yours";
+    if (two === "mr create" || two === "mr new") return (a.indexOf("--draft") >= 0 || a.indexOf("--wip") >= 0) ? null : "open the MR as a draft (add --draft); the orchestrator marks it ready on your go";
+    if (two === "mr update" && a.some(function (x) { return /^(-r|--ready|--draft=false|--wip=false)$/.test(x); })) return "only the orchestrator takes an MR out of draft";
+    if (/^ci (run|run-trig|trigger|retry)$/.test(two)) return "starting CI jobs (manual jobs deploy)";
+    if (a[0] === "release" || a[0] === "variable") return "glab " + a[0] + " changes project settings";
+    return null;
+  }
+  function verdict(c, own) {
+    if (/\.claude\/orch/i.test(c) || /(~|\$HOME|\$\{HOME\}|\/Users\/[^\/\s]+)\/\.c[^\/\s]*\/o/i.test(c)) return "orchestrator files are off limits";
+    if (/\.env[^\/\s]*production/i.test(c)) return "production env files are off limits";
+    var segs = segmentsOf(c);
+    for (var s = 0; s < segs.length; s++) {
+      var a = segs[s].trim().split(/\s+/).filter(Boolean);
+      while (a.length && (/^[A-Za-z_][A-Za-z0-9_]*=/.test(a[0]) || /^(sudo|command|exec|time|nohup|env|then|do|else|!|\{)$/.test(a[0]))) a.shift();
+      if (!a.length) continue;
+      var w = base(a.shift());
+      if (/^(npx|bunx|pnpx)$/.test(w)) { if (!a.length) continue; w = base(a.shift()); }
+      var why = null;
+      if (w === "git") why = checkGit(a.slice(), own);
+      else if (w === "glab") why = checkGlab(a);
+      else if (w === "rm" && a.some(function (x) { return /^-[a-zA-Z]*[rR]/.test(x) || x === "--recursive"; })) why = "recursive rm";
+      else if (/^(psql|mysql|mongosh|redis-cli)$/.test(w)) why = "database clients";
+      else if (/^(kubectl|helm|terraform)$/.test(w)) why = "cluster and infra tools";
+      else if (w === "eval") why = "eval hides the real command from the guard";
+      else if (/^(bash|sh|zsh)$/.test(w) && a.indexOf("-c") >= 0) why = w + " -c hides the real command from the guard";
+      else if (w === "prisma" && /^(migrate (deploy|reset|resolve)|db (push|execute|seed))$/.test((a[0] || "") + " " + (a[1] || ""))) why = "prisma " + a[0] + " " + a[1] + " applies changes to a database";
+      else if (/^(npm|pnpm|yarn)$/.test(w)) {
+        if (a[0] === "run" || a[0] === "run-script") a.shift();
+        if (/^(start:migrator|migrate)/.test(a[0] || "")) why = "npm run " + a[0] + " applies migrations";
+      }
+      if (why) return why;
+    }
+    return null;
+  }
+
+  var cmd = document.getElementById("cmd");
+  var cw = document.getElementById("c-worker"), co = document.getElementById("c-own");
+  var out = document.getElementById("verdict");
+
+  function check() {
+    var c = cmd.value.trim();
+    if (!c) { out.className = "verdict skip"; out.textContent = "Type a command."; return; }
+    if (!cw.checked) { out.className = "verdict skip"; out.textContent = "Let through: this session isn't a pinned worker (it's one of your own sessions, or an unregistered ticket). The guard stays out of it."; return; }
+    var why = verdict(c, co.checked ? OWN : "tmp-work");
+    if (why) { out.className = "verdict block"; out.textContent = "Blocked: " + why + ". The worker is told to report instead."; return; }
+    out.className = "verdict allow"; out.textContent = "Allowed.";
+  }
+  [cmd, cw, co].forEach(function (el) { el.addEventListener("input", check); el.addEventListener("change", check); });
+
+  var examples = ["git push -u origin HEAD && glab mr create --draft --target-branch master", "git push origin HEAD:qa",
+    "git commit -m \"fix push crash on main screen\"", "glab mr create --title x", "glab mr update 1130 --ready",
+    "git push --force", "rm -rf dist", "git rm -r src/old", "grep -rn psql docs/", "psql -c 'select 1'",
+    "npx prisma migrate dev --create-only", "npm run start:migrator", "touch ~/.claude/orch*/tickets/FP-412/sessions", "bash -c 'git push origin HEAD:qa'"];
+  var chips = document.getElementById("chips");
+  examples.forEach(function (ex) {
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = ex;
+    b.addEventListener("click", function () { cmd.value = ex; check(); });
+    chips.appendChild(b);
+  });
+  check();
+})();
+</script>
+</body>
+</html>

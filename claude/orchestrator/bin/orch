@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# Ticket registry and attention queue for the desktop orchestrator session.
+# Only the orchestrator runs this; the worker guard blocks workers from touching it.
+#
+#   orch start FP-412              register a worker (enforces the cap) before start_session
+#   orch link  FP-412 local_<id>   record the worker's desktop session id
+#   orch add   FP-412 <type> <<'EOF' ... EOF   queue an item read from stdin (question|approval|blocked|mr-ready|done)
+#   orch next                      oldest open item (else oldest unanswered one), marked presented
+#   orch answered FP-412 <<'EOF' ... EOF   mark the ticket's waiting item answered (answer on stdin)
+#   orch go    FP-412              on an mr-ready item: take its draft MR (!NNN in the report) out of draft
+#   orch list                      waiting items, one line each
+#   orch board                     one line per ticket
+#   orch count                     number of items waiting on you
+#   orch done  FP-412              unregister the ticket and close its items (after its session is archived)
+set -euo pipefail
+
+ORCH_HOME="${ORCH_HOME:-$HOME/.claude/orchestrator}"
+MAX_WORKERS="${ORCH_MAX_WORKERS:-4}"
+T_DIR="$ORCH_HOME/tickets"
+Q_DIR="$ORCH_HOME/queue"
+mkdir -p "$T_DIR" "$Q_DIR"
+
+die() { echo "orch: $*" >&2; exit 1; }
+ticket() { # accepts FP-412, fp412, "fp 412", 412
+  local t; t="$(echo "${1:-}" | tr '[:lower:]' '[:upper:]' | tr -d ' -')"
+  t="${t#FP}"
+  [[ "$t" =~ ^[0-9]+$ ]] || die "ticket must look like FP-412"
+  echo "FP-$t"
+}
+# Items are one JSON file each, named <created>-<TICKET>.json so ls sorts oldest first.
+items_with_status() { # status...
+  local f s
+  for f in "$Q_DIR"/*.json; do
+    [ -e "$f" ] || continue
+    s="$(jq -r .status "$f")"
+    for want in "$@"; do [ "$s" = "$want" ] && echo "$f"; done
+  done
+  return 0
+}
+newest_waiting() { # ticket
+  items_with_status open presented | grep -- "-$1.json$" | tail -1 || true
+}
+set_field() { # file jq-filter args...
+  local f="$1"; shift
+  jq "$@" "$f" >"$f.tmp" && mv "$f.tmp" "$f"
+}
+
+case "${1:-}" in
+  start)
+    t="$(ticket "${2:-}")"
+    [ -e "$T_DIR/$t/worker" ] && die "$t already has a worker"
+    n="$( (ls -d "$T_DIR"/FP-*/worker 2>/dev/null || true) | wc -l | tr -d ' ')"
+    [ "$n" -lt "$MAX_WORKERS" ] || die "already $n workers: $(ls "$T_DIR" | tr '\n' ' ')- finish one first"
+    mkdir -p "$T_DIR/$t"
+    jq -n --arg t "$t" --arg c "$(date -u +%FT%TZ)" '{ticket:$t, session:null, started:$c}' >"$T_DIR/$t/worker"
+    echo "$t registered"
+    ;;
+  link)
+    t="$(ticket "${2:-}")"; s="${3:?session id like local_...}"
+    [ -e "$T_DIR/$t/worker" ] || die "no worker for $t"
+    set_field "$T_DIR/$t/worker" --arg s "$s" '.session=$s'
+    echo "$t -> $s"
+    ;;
+  add)
+    # Text comes on stdin (a quoted heredoc), so backticks and $( ) in a report never run.
+    t="$(ticket "${2:-}")"; type="${3:?type}"; text="$(cat)"
+    [ -n "$text" ] || die "report text goes on stdin"
+    case "$type" in question|approval|blocked|mr-ready|done) ;; *) die "bad type $type" ;; esac
+    s="$(jq -r '.session // empty' "$T_DIR/$t/worker" 2>/dev/null || true)"
+    # A worker's newer report replaces its older unanswered one.
+    for old in $(newest_waiting "$t"); do set_field "$old" '.status="superseded"'; done
+    f="$Q_DIR/$(date -u +%Y%m%dT%H%M%S)-$$-$t.json"   # pid keeps same-second items apart
+    jq -n --arg t "$t" --arg ty "$type" --arg x "$text" --arg s "$s" --arg c "$(date -u +%FT%TZ)" \
+      '{ticket:$t, type:$ty, text:$x, session:$s, created:$c, status:"open"}' >"$f"
+    echo "queued $t $type"
+    ;;
+  next)
+    # Unanswered items come back once nothing new is open, so a skipped one isn't lost.
+    f="$(items_with_status open | head -1 || true)"
+    [ -z "$f" ] && f="$(items_with_status presented | head -1 || true)"
+    [ -z "$f" ] && { echo "QUEUE EMPTY"; exit 0; }
+    set_field "$f" '.status="presented"'
+    jq -r '"\(.ticket) · \(.type)\n\(.text)\nsession: \(.session)"' "$f"
+    echo "still_waiting_after_this: $(( $(items_with_status open presented | wc -l) - 1 ))"
+    ;;
+  answered)
+    t="$(ticket "${2:-}")"; a="$(cat)"
+    [ -n "$a" ] || die "answer text goes on stdin"
+    f="$(newest_waiting "$t")"; [ -n "$f" ] || die "nothing waiting for $t"
+    set_field "$f" --arg a "$a" '.status="answered" | .answer=$a'
+    echo "answered $t"
+    ;;
+  go)
+    t="$(ticket "${2:-}")"
+    f="$(newest_waiting "$t")"
+    [ -n "$f" ] && [ "$(jq -r .type "$f")" = "mr-ready" ] || die "$t isn't waiting on mr-ready; go only applies to an mr-ready item"
+    [[ "$(jq -r .text "$f")" =~ \!([0-9]+) ]] || die "$t's mr-ready report has no draft MR number (!NNN); ask the worker for it"
+    mr="${BASH_REMATCH[1]}"
+    glab mr update "$mr" --ready >&2 || die "glab couldn't mark !$mr ready; nothing changed"
+    set_field "$f" --arg a "GO: !$mr marked ready" '.status="answered" | .answer=$a'
+    echo "$t: !$mr is out of draft"
+    ;;
+  list)
+    for f in $(items_with_status open presented); do
+      jq -r '"\(.ticket)  \(.type)  \(.status)  \(.text | split("\n")[0] | .[0:120])"' "$f"
+    done
+    ;;
+  count) items_with_status open presented | wc -l | tr -d ' ' ;;
+  board)
+    for d in "$T_DIR"/FP-*/; do
+      [ -e "$d/worker" ] || continue
+      t="$(basename "$d")"; f="$(newest_waiting "$t")"
+      if [ -n "$f" ]; then w="$(jq -r '"waiting on you: \(.type)"' "$f")"; else w="working or idle"; fi
+      echo "$t  $w  $(jq -r '.session // "no session"' "$d/worker")"
+    done
+    ;;
+  done)
+    t="$(ticket "${2:-}")"
+    for f in $(items_with_status open presented); do
+      case "$f" in *-"$t".json) set_field "$f" '.status="closed"' ;; esac
+    done
+    mkdir -p "$ORCH_HOME/done"
+    [ -d "$T_DIR/$t" ] && mv "$T_DIR/$t" "$ORCH_HOME/done/$t-$(date +%s)"
+    echo "$t unregistered"
+    ;;
+  *) awk 'NR > 1 && /^#/ { print; next } NR > 1 { exit }' "$0"; exit 1 ;;
+esac

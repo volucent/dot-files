@@ -34,7 +34,12 @@
       "Bash(type *)",
       "Bash(uniq *)",
       "Bash(wc *)",
-      "Bash(which *)"
+      "Bash(which *)",
+      "Bash(~/.claude/orchestrator/bin/orch *)"
+    ],
+    "ask": [
+      "Bash(~/.claude/orchestrator/bin/orch go *)",
+      "Bash(/Users/pasha/.claude/orchestrator/bin/orch go *)"
     ],
     "deny": [
       "Bash(git push --force*)",
@@ -87,6 +92,16 @@
             "type": "command",
             "command": "bash ~/.claude/lint-on-commit.sh",
             "timeout": 120
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/orchestrator/hooks/worker-guard.sh",
+            "timeout": 10
           }
         ]
       }
