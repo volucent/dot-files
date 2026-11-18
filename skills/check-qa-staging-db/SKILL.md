@@ -13,7 +13,7 @@ The DB is reached through a port-forward that the user runs themselves (VPN must
 kubectl -n fin-plat-qa-staging port-forward pod/psql-1 5432:5432
 ```
 
-If the pod has moved, find it with `kubectl get pods -A | grep -i -E 'psql|postgres'`.
+The user has it aliased as `pf-pg-qa`. If the pod has moved, find it with `kubectl get pods -A | grep -i -E 'psql|postgres'`.
 
 Credentials live in two `pass` entries (GPG passphrase is cached in macOS Keychain, so reads are non-interactive):
 

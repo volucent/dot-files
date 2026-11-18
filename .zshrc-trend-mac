@@ -126,6 +126,8 @@ alias set-qa="git branch -f qa HEAD && git push origin --delete qa && git push o
 alias set-qa-2="git branch -f qa-staging-2 HEAD && git push origin --delete qa-staging-2 && git push origin qa-staging-2"
 # Graylog has no public URL; needs VPN. UI/API at http://127.0.0.1:9000
 alias pf-gl="kubectl -n graylog port-forward svc/graylog-web 9000:9000"
+# qa-staging Postgres on 127.0.0.1:5432; needs VPN
+alias pf-pg-qa="kubectl -n fin-plat-qa-staging port-forward pod/psql-1 5432:5432"
 
 # set default text editor to vim
 export VISUAL=vim
