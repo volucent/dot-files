@@ -1,39 +1,51 @@
 ---
 name: check-graylog
-description: Query Graylog logs via its REST API using the URL and API token stored in `pass`. Use when the user wants to check, search, or tail Graylog logs, or investigate errors/requests in logs.
+description: Query Graylog logs via its REST API through a local kubectl port-forward, using the API token stored in `pass`. Use when the user wants to check, search, or tail Graylog logs, or investigate errors/requests in logs.
 argument-hint: '[optional: search query, e.g. "kubernetes_namespace_name:<namespace> AND message:error"]'
 allowed-tools: Bash
 ---
 
 # Check Graylog
 
-Credentials live in the `pass` store (GPG passphrase is cached in macOS Keychain, so reads are non-interactive):
+Graylog has no public URL. It is reached through a port-forward that the user runs themselves (VPN must be up):
 
-- `pass graylog/url` — base URL (e.g. `https://graylog.example.com`)
-- `pass graylog/api-token` — API token
+```bash
+kubectl -n graylog port-forward svc/graylog-web 9000:9000
+```
+
+The user has it aliased as `pf-gl`. The API is then at `http://127.0.0.1:9000`. If the service has moved, find it with `kubectl get svc -A | grep -i graylog`.
+
+The API token lives in `pass graylog/api-token` (GPG passphrase is cached in macOS Keychain, so reads are non-interactive).
 
 **Never print the token.** Always consume it via command substitution so it stays out of the transcript. Don't run bare `pass graylog/api-token` or echo it.
 
-## Step 1: Load credentials and check connectivity
+## Step 1: Check connectivity
 
 ```bash
-GL_URL="$(pass graylog/url)"
+GL_URL=http://127.0.0.1:9000
 GL_AUTH="$(pass graylog/api-token):token"
-curl -sS -u "$GL_AUTH" -H 'Accept: application/json' "$GL_URL/api/system" | jq '{version, hostname, lifecycle}'
+curl -sS -m 15 -u "$GL_AUTH" -H 'Accept: application/json' -w '\nhttp=%{http_code}\n' "$GL_URL/api/system"
 ```
 
-Shell state does not persist between Bash calls, so re-load `GL_URL` / `GL_AUTH` in every call.
+Shell state does not persist between Bash calls, so set `GL_URL` / `GL_AUTH` in every call. Keep the `-w 'http=%{http_code}'` (or otherwise check the status): a 401 has an empty body, so piping straight to `jq` prints nothing and looks like success.
 
+- `connection refused` → the port-forward isn't running. Stop and ask the user to (re)start it, and suggest an auto-reconnecting loop:
+
+  ```bash
+  while true; do kubectl -n graylog port-forward svc/graylog-web 9000:9000; echo "port-forward dropped, reconnecting..."; sleep 1; done
+  ```
+
+  Don't start the port-forward yourself unless the user asks; it's a long-running process tied to their VPN session.
+- `kubectl` hangs or times out → the VPN is down; ask the user to connect it.
 - `pass` error "not in the password store" → tell the user the entry is missing; don't guess values.
-- Connection timeout → Graylog is public (behind Cloudflare, no VPN needed); report the timeout rather than blaming the network setup.
-- 401 → token expired or revoked; ask the user to create a new one and save it with `pass insert -f graylog/api-token`.
+- 401 → token expired or revoked; ask the user to create a new one in the UI at `http://127.0.0.1:9000` (profile → Edit tokens) and save it with `pass insert -f graylog/api-token`.
 
 ## Step 2: Search
 
 Relative search (last N seconds). Use the user's query, or `$ARGUMENTS` if given; default to `*`:
 
 ```bash
-GL_URL="$(pass graylog/url)"; GL_AUTH="$(pass graylog/api-token):token"
+GL_URL=http://127.0.0.1:9000; GL_AUTH="$(pass graylog/api-token):token"
 curl -sS -u "$GL_AUTH" -H 'Accept: application/json' -G "$GL_URL/api/search/universal/relative" \
   --data-urlencode 'query=kubernetes_namespace_name:<namespace> AND message:error' \
   --data-urlencode 'range=3600' \
