@@ -98,6 +98,11 @@ mkdir -p ~/.claude/skills/ticket-worker
 link claude/skills/ticket-worker/SKILL.md ~/.claude/skills/ticket-worker/SKILL.md
 link skills/quiz ~/.claude/skills/quiz
 link skills/quiz ~/.agents/skills/quiz
+# Old installs made a real folder holding a SKILL.md link; `link` would back it up
+# inside skills/, where it loads as a duplicate skill.
+if [ -d ~/.claude/skills/weekly-report ] && [ ! -L ~/.claude/skills/weekly-report ]; then
+  rm -r ~/.claude/skills/weekly-report
+fi
 link skills/weekly-report ~/.claude/skills/weekly-report
 link skills/weekly-report ~/.agents/skills/weekly-report
 
