@@ -18,7 +18,7 @@ A week runs Sunday 00:00 to the next Sunday 00:00, local time. The window is the
     --since="<sunday> 00:00" --until="<next-sunday> 00:00" --no-merges --format="%H %cd %s" --date=short
   ```
   Repos without ticket prefixes (UI, flux/infra) still belong in the report.
-- **MRs** — once per GitLab remote that has commits:
+- **MRs** — once per distinct GitLab remote under `~/repos/trend`, with or without commits this week (git is never fetched, so an MR merged in GitLab can leave no local commit):
   ```
   glab mr list --author=@me --all --order updated_at -P 100 -F json
   ```
@@ -44,15 +44,15 @@ Finance Platform
 * staging db reset script
 ```
 
-- **Sections** — one header line per repo folder under `~/repos/trend` (`fin-plat` → Finance Platform; others title-cased, `email-plat` → Email Platform), whatever the ticket's Linear team; blank line, then `* ` bullets. One section is normal.
+- **Sections** — one header line per repo folder under `~/repos/trend`, whatever the ticket's Linear team: `plat` → Platform, short acronyms upper-cased, the rest title-cased (`fin-plat` → Finance Platform, `email-plat` → Email Platform, `pfm` → PFM, `rev-pie` → Rev Pie). Work with no repo (a ticket with no commit or MR) goes under its Linear team's name. Blank line, then `* ` bullets. One section is normal.
 - **Bullets** — ticket ID first, then a lowercase summary in the voice of the MR title, short enough for one Slack line. Untagged work gets the summary alone.
 - **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks.
-- **Status** — as of now. The MRs decide; Linear decides only for tickets with no MR.
-  - merged MR, pushed straight to the default branch, completed ticket, or session-only work → bare
-  - any MR still open → `(MR open)`
-  - started ticket with no open or merged MR (none, or only closed ones) → `WIP`
-  - canceled ticket → only inside a bullet that says what replaced it (e.g. "covered by role guard"); otherwise left out
-  - ticket not started (Todo, Backlog) → left out
+- **Status** — as of now. Apply these top-down; the first match wins.
+  1. canceled ticket → only inside a bullet that says what replaced it (e.g. "covered by role guard"); otherwise left out
+  2. ticket not started (Todo, Backlog) → left out
+  3. any MR still open → `(MR open)`
+  4. merged MR, pushed straight to the default branch, completed ticket, or session-only work → bare
+  5. anything else (a started ticket or untagged branch work whose MRs, if any, are all closed) → `WIP`
 - **Order** — product work first, then incidents and security, then infra, tooling and docs.
 
 Output only the report. After the code block, add one line naming any source that could not be read (tool missing, MCP disconnected), and when the window holds no work, say so and suggest `last`.
