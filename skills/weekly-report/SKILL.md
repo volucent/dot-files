@@ -1,6 +1,6 @@
 ---
 name: weekly-report
-description: Write my Slack weekly report of the week's work. Use when the user asks for their weekly report.
+description: Write the user's Slack weekly report of the week's work. Use when the user asks for their weekly report.
 argument-hint: "[last — the previous week]"
 ---
 
@@ -8,7 +8,7 @@ argument-hint: "[last — the previous week]"
 
 A list of what I shipped and moved this week, one bullet per ticket. Scope is work under `~/repos/trend`; leave out personal projects (`~/repos/volucent`).
 
-A week runs Sunday 00:00 to the next Sunday 00:00, local time. The window is the week containing today; when `$ARGUMENTS` is `last`, the week before it. Any other argument: say only `last` is supported, and stop. Work out `<sunday>` and `<next-sunday>` as `YYYY-MM-DD` dates and the local UTC offset (`date +%z`) first, and bound every source below by them.
+A week runs Sunday 00:00 to the next Sunday 00:00, local time. The window is the week containing today; when `$ARGUMENTS` is `last`, the week before it. Any other argument: say only `last` is supported, and stop. Work out `<sunday>` and `<next-sunday>` as `YYYY-MM-DD` dates and the local UTC offset (`date +%z`) first. Git takes local times directly; every other source returns UTC timestamps (`…Z`), so compare those against `<sunday>T00:00:00<offset>` and `<next-sunday>T00:00:00<offset>`, never against the bare date.
 
 ## 1. Gather
 
@@ -18,19 +18,19 @@ A week runs Sunday 00:00 to the next Sunday 00:00, local time. The window is the
     --since="<sunday> 00:00" --until="<next-sunday> 00:00" --no-merges --format="%H %cd %s" --date=short
   ```
   Repos without ticket prefixes (UI, flux/infra) still belong in the report.
-- **MRs** — in each GitLab repo with commits:
+- **MRs** — once per GitLab remote that has commits:
   ```
   glab mr list --author=@me --all --order updated_at -P 100 -F json
   ```
-  Keep MRs whose `updated_at` falls in the window, and read `state` and `merged_at` from the same output.
-- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return. Keep a ticket when its `createdAt`, `startedAt`, `completedAt` or `canceledAt` falls in the window, or when it has a commit or MR in the window; a bare `updatedAt` bump is not work.
-- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt`, converted from UTC to local time, falls in the window. Titles surface investigations, incidents and reviews that left no commit; search a transcript only when a title is too vague to place.
+  An MR is work in the window when its `created_at`, `merged_at` or `closed_at` falls in it. For status, use every MR in the listing that matches a kept ticket or branch, whatever its dates.
+- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return. Keep a ticket when its `startedAt`, `completedAt` or `canceledAt` falls in the window, or when it has a commit or MR in the window; a bare `updatedAt` bump is not work.
+- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt` falls in the window. Titles surface investigations, incidents and reviews that left no commit; search a transcript only when a title is too vague to place.
 
 Done when every ticket ID, every untagged commit theme and every in-window session under `~/repos/trend` is on one list with its status.
 
 ## 2. Write
 
-Follow this sample exactly; it is plain text for Slack:
+Output the report in one code block, following this sample exactly:
 
 ```
 Finance Platform
@@ -44,15 +44,15 @@ Finance Platform
 * staging db reset script
 ```
 
-- **Sections** — one header line per repo family (`fin-plat` → Finance Platform), whatever the ticket's Linear team; blank line, then `* ` bullets. One section is normal.
+- **Sections** — one header line per repo folder under `~/repos/trend` (`fin-plat` → Finance Platform; others title-cased, `email-plat` → Email Platform), whatever the ticket's Linear team; blank line, then `* ` bullets. One section is normal.
 - **Bullets** — ticket ID first, then a lowercase summary in the voice of the MR title, short enough for one Slack line. Untagged work gets the summary alone.
 - **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks.
-- **Status** — as of now. The MR decides; Linear decides only for tickets with no MR.
-  - merged MR, or pushed straight to the default branch → bare
+- **Status** — as of now. The MRs decide; Linear decides only for tickets with no MR.
+  - merged MR, pushed straight to the default branch, completed ticket, or session-only work → bare
   - any MR still open → `(MR open)`
-  - started ticket with no MR → `WIP`
-  - closed unmerged MR, or canceled ticket → only inside a bullet that says what replaced it (e.g. "covered by role guard")
+  - started ticket with no open or merged MR (none, or only closed ones) → `WIP`
+  - canceled ticket → only inside a bullet that says what replaced it (e.g. "covered by role guard"); otherwise left out
   - ticket not started (Todo, Backlog) → left out
 - **Order** — product work first, then incidents and security, then infra, tooling and docs.
 
-Output only the report. When a source could not be read (tool missing, MCP disconnected), add one last line naming it.
+Output only the report. After the code block, add one line naming any source that could not be read (tool missing, MCP disconnected), and when the window holds no work, say so and suggest `last`.
