@@ -115,7 +115,7 @@
   },
 
   "project_panel": {
-    "dock": "right",
+    "dock": "left",
     "auto_reveal_entries": true,
   },
   "git_panel": {
