@@ -15,11 +15,13 @@ A week runs Sunday 00:00 to the next Sunday 00:00, local time. Report the week c
 Get the dates from the shell, not by hand:
 
 ```
-s=$(date -v-$(date +%w)d +%F)              # macOS; GNU: date -d "-$(date +%w) days" +%F
-date -j -v+7d -f %F "$s" +%F               # <next-sunday>; GNU: date -d "$s +7 days" +%F
-date -j -v-7d -f %F "$s" +%F               # for last: the earlier <sunday>; GNU: date -d "$s -7 days" +%F
-date +%z                                   # <offset>
+s=$(date -v-$(date +%w)d +%F)              # this week's Sunday; GNU: date -d "-$(date +%w) days" +%F
+date -j -v+7d -f %F "$s" +%F               # GNU: date -d "$s +7 days" +%F
+date -j -v-7d -f %F "$s" +%F               # GNU: date -d "$s -7 days" +%F
+date +%z                                   # <offset>; write a leading + as %2B inside a URL
 ```
+
+This week: `<sunday>` is `$s` and `<next-sunday>` is `$s` + 7 days. Last week: `<sunday>` is `$s` − 7 days and `<next-sunday>` is `$s`.
 
 Git takes `<sunday> 00:00` as local time. Every other source returns UTC timestamps (`…Z`); compare those against `<sunday>T00:00:00<offset>` and `<next-sunday>T00:00:00<offset>`, never against the bare date.
 
@@ -30,17 +32,17 @@ Git takes `<sunday> 00:00` as local time. Every other source returns UTC timesta
   git -C <repo> log --branches --remotes --source --author="$(git -C <repo> config user.email)" \
     --since="<sunday> 00:00" --until="<next-sunday> 00:00" --no-merges --format="%h %S %cd %s" --date=short
   ```
-  `%S` is the branch a commit was reached from. A commit with no ticket in its subject takes the ticket in its branch name or MR; only commits on the default branch with no ticket stay untagged.
+  Then list the default-branch commits on their own with the same command, `origin/HEAD` in place of `--branches --remotes --source`. Those stay as they are: untagged when the subject has no ticket, and counted as pushed to the default branch. Every other commit is branch work; `%S` names a branch that holds it, so one with no ticket in its subject takes the ticket in that branch name or its MR.
 - **MRs** — one call covers every GitLab project; run it inside any GitLab clone under `~/repos/trend` so glab picks the right host:
   ```
   glab api "merge_requests?scope=created_by_me&state=all&updated_after=<sunday>T00:00:00<offset>&per_page=100" \
     | jq -r '.[] | [.references.full, .state, .source_branch, .created_at, .merged_at, .closed_at, .title] | @tsv'
   ```
   An MR is work in the window when its `created_at`, `merged_at` or `closed_at` falls in it. Every listed MR also feeds status for the ticket or branch it matches.
-- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return. Keep a ticket when its `startedAt`, `completedAt` or `canceledAt` falls in the window, or when it has a commit or MR in the window; a bare `updatedAt` bump is not work.
-- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt` falls in the window. A session folds into the ticket bullet it worked on. It earns its own bullet only when it is an investigation, incident or review with an outcome worth telling the team; setup, how-to and tooling chats are dropped. Search a transcript only when a title is too vague to place.
+- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return. Keep a ticket when it has a commit, MR or session in the window, or when its `startedAt` or `canceledAt` falls in it. A ticket only closed in the window (`completedAt`, nothing else) folds into the bullet of the ticket whose work closed it, or is left out; a bare `updatedAt` bump is not work.
+- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt` falls in the window. Sessions have no start time, so for last week also look at sessions active after the window and keep those whose title or transcript places their work inside it. A session folds into the ticket bullet it worked on. It earns its own bullet only when it is an investigation, incident or review with an outcome worth telling the team; setup, how-to and tooling chats are dropped. Search a transcript only when a title is too vague to place.
 
-Done when every ticket, every untagged commit and every in-window session is placed: in a bullet, or dropped by a rule above.
+Done when every ticket, every untagged commit, every in-window MR and every in-window session is placed: in a bullet, or dropped by a rule above.
 
 ## 2. Write
 
