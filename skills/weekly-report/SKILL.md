@@ -32,15 +32,15 @@ Git takes `<sunday> 00:00` as local time. Every other source returns UTC timesta
   git -C <repo> log --branches --remotes --source --author="$(git -C <repo> config user.email)" \
     --since="<sunday> 00:00" --until="<next-sunday> 00:00" --no-merges --format="%h %S %cd %s" --date=short
   ```
-  Then list the default-branch commits on their own with the same command, `origin/HEAD` in place of `--branches --remotes --source`. Those stay as they are: untagged when the subject has no ticket, and counted as pushed to the default branch. Every other commit is branch work; `%S` names a branch that holds it, so one with no ticket in its subject takes the ticket in that branch name or its MR.
+  Then list the default-branch commits on their own with the same command, `origin/HEAD` in place of `--branches --remotes --source`. For these, ignore `%S` (it often names a stale, unrelated branch): take the ticket from the subject only, and count them as pushed to the default branch. Every other commit is branch work; `%S` names a branch that holds it, so one with no ticket in its subject takes the ticket in that branch name or its MR.
 - **MRs** — one call covers every GitLab project; run it inside any GitLab clone under `~/repos/trend` so glab picks the right host:
   ```
   glab api "merge_requests?scope=created_by_me&state=all&updated_after=<sunday>T00:00:00<offset>&per_page=100" \
     | jq -r '.[] | [.references.full, .state, .source_branch, .created_at, .merged_at, .closed_at, .title] | @tsv'
   ```
   An MR is work in the window when its `created_at`, `merged_at` or `closed_at` falls in it. Every listed MR also feeds status for the ticket or branch it matches.
-- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return. Keep a ticket when it has a commit, MR or session in the window, or when its `startedAt` or `canceledAt` falls in it. A ticket only closed in the window (`completedAt`, nothing else) folds into the bullet of the ticket whose work closed it, or is left out; a bare `updatedAt` bump is not work.
-- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt` falls in the window. Sessions have no start time, so for last week also look at sessions active after the window and keep those whose title or transcript places their work inside it. A session folds into the ticket bullet it worked on. It earns its own bullet only when it is an investigation, incident or review with an outcome worth telling the team; setup, how-to and tooling chats are dropped. Search a transcript only when a title is too vague to place.
+- **Linear** — `list_issues` with `assignee: "me"` and `updatedAt: "<sunday>T00:00:00<offset>"`. Then `get_issue` every ticket ID from commits or MRs that the list did not return; when the looked-up title plainly does not fit the work (a typo'd ID), use the MR's summary and name the mismatch in the closing line. Keep a ticket when it has a commit, MR or session in the window, or when its `startedAt` or `canceledAt` falls in it. A ticket only closed in the window (`completedAt`, nothing else) folds into the bullet of the ticket whose work closed it, or is left out; a bare `updatedAt` bump is not work.
+- **Claude sessions** — `list_sessions` with `include_archived: true` and a `limit` high enough to reach `<sunday>`. Keep sessions whose `cwd` is under `~/repos/trend` and whose `lastActivityAt` falls in the window. Sessions have no start time, so for last week also look at sessions active after the window and keep those whose MR, branch or title places their work inside it. A session folds into the ticket bullet it worked on: match it by `prNumber` or `branch` first, then by title. It earns its own bullet only when it is an investigation, incident or review with an outcome worth telling the team; setup, how-to and tooling chats are dropped. Search a transcript only when a title is too vague to place.
 
 Done when every ticket, every untagged commit, every in-window MR and every in-window session is placed: in a bullet, or dropped by a rule above.
 
@@ -53,22 +53,23 @@ Finance Platform
 
 * FP-548 enforce plaid identity match at cash-out (MR open)
 * FP-551 hide cash advance transfers without external ids from users
-* FP-552 / FP-559 halve eslint run time, keep lint runs out of other agent worktrees
-* FP-564 / FP-565 lock down offer-promotion pushes (covered by role guard), cap verification code guesses
-* BE-59 cap prisma postgres pool with PRISMA_POOL_SIZE for workers and transaction-sync
 * FP-430 plaid mobile states WIP
 * investigated nov 20 account takeover attempts
+* FP-564 / FP-565 lock down offer-promotion pushes (covered by role guard), cap verification code guesses
+* FP-563 reject plaid webhooks that plaid did not sign (MR open)
+* BE-59 cap prisma postgres pool with PRISMA_POOL_SIZE for workers and transaction-sync
 * staging db reset script
+* FP-552 / FP-559 halve eslint run time, keep lint runs out of other agent worktrees
 ```
 
 - **Sections** — one header line per repo folder under `~/repos/trend`, whatever the ticket's Linear team: `fin-plat` → Finance Platform, `email-plat` → Email Platform, `pfm` → PFM, `rev-pie` → Rev Pie, `hey-pros` → Hey Pros, `ci` → CI, `exp` → Exp, `trend` → Trend. Work with no repo (a ticket with no commit or MR) goes under its Linear team's name. Blank line, then `* ` bullets. One section is normal.
 - **Bullets** — ticket ID first, then a lowercase summary in the voice of the MR title, short enough for one Slack line. Untagged work gets the summary alone.
-- **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks.
+- **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks. Only tickets with the same status merge (a folded canceled ticket aside); keep a related ticket with a different status as its own bullet next to them.
 - **Status** — as of now. Apply these top-down; the first match wins.
   1. canceled ticket → when another ticket's work replaced it, fold it into that ticket's bullet with a short reason in parentheses, as FP-564 in the sample; otherwise left out
   2. ticket not started (Todo, Backlog) → left out
   3. any MR still open → `(MR open)`
-  4. merged MR, pushed straight to the default branch, completed ticket, or session-only work → bare, even while Linear still says started (it lags behind merges)
+  4. merged MR, pushed straight to the default branch, completed ticket, or session-only work → bare, even while Linear still says started
   5. anything else (a started ticket or branch work whose MRs, if any, are all closed) → `WIP`
 - **Order** — product work first, then incidents and security, then infra, tooling and docs.
 
