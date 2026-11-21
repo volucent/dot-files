@@ -69,8 +69,6 @@ link claude/notify-input.sh ~/.claude/notify-input.sh
 link claude/session-name.sh ~/.claude/session-name.sh
 link claude/chat-name.sh ~/.claude/chat-name.sh
 link claude/lint-on-commit.sh ~/.claude/lint-on-commit.sh
-mkdir -p ~/.claude/skills/weekly-report
-link skills/weekly-report/SKILL.md ~/.claude/skills/weekly-report/SKILL.md
 link claude/skills/create-mr.md ~/.claude/skills/create-mr.md
 link claude/skills/new-task.md ~/.claude/skills/new-task.md
 mkdir -p ~/.claude/skills/caveman
@@ -91,9 +89,10 @@ mkdir -p ~/.claude/skills/ticket-worker
 link claude/skills/ticket-worker/SKILL.md ~/.claude/skills/ticket-worker/SKILL.md
 link skills/quiz ~/.claude/skills/quiz
 link skills/quiz ~/.agents/skills/quiz
+link skills/weekly-report ~/.claude/skills/weekly-report
+link skills/weekly-report ~/.agents/skills/weekly-report
 
 # Other agents (~/.agents)
-link skills/weekly-report ~/.agents/skills/weekly-report
 if [ ! -d "$MATT_POCOCK_ENGINEERING_SKILLS/grill-with-docs" ]; then
   link skills/grill-with-docs ~/.claude/skills/grill-with-docs
   link skills/grill-with-docs ~/.agents/skills/grill-with-docs

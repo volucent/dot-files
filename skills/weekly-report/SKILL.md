@@ -1,63 +1,47 @@
 ---
 name: weekly-report
-description: Generate a weekly check-in report from git history. Outputs a concise bullet list of what happened this week.
-argument-hint: [optional: number of days to look back, default 7]
-allowed-tools: Bash, Read, Glob, Grep
+description: Write the Slack weekly check-in report of my work from git, GitLab MRs, Linear and Claude sessions. Use when the user asks for a weekly report or check-in.
+argument-hint: "[days to look back, default 7]"
 ---
 
 # Weekly Report
 
-Generate a brief bullet-point summary of work done this week for the team check-in.
+A Slack-ready list of what I shipped and moved this week, one bullet per ticket. The window is `$ARGUMENTS` days back, 7 if empty. Scope is work under `~/repos/trend`; leave out personal projects (`~/repos/volucent`).
 
-## Step 1: Gather git history
+## 1. Gather
 
-Run the following to get commits from the past week (or `$ARGUMENTS` days if provided, default 7):
+Collect every source before writing; each one catches work the others miss.
 
-```
-git log --author="$(git config user.name)" --since="$DAYS days ago" --oneline --no-merges
-```
+- **Git** — for every repo under `~/repos/trend` (worktrees and clones of the same remote count once), my commits on all branches:
+  ```
+  git -C <repo> log --all --author="$(git config user.name)" --since="<N> days ago" --no-merges --format="%ad %s" --date=short
+  ```
+  Repos without ticket prefixes (UI, flux/infra) still belong in the report.
+- **MRs** — `glab mr list --author=@me --all` in each GitLab repo with commits, then `glab mr view <iid>` for any MR touched this week to learn merged / open / closed.
+- **Linear** — `list_issues` with `assignee: "me"`, `updatedAt: "-P<N>D"`: status per ticket, and tickets filed this week that have no commits yet.
+- **Claude sessions** — `list_sessions` with `include_archived: true`, kept to `lastActivityAt` inside the window. Titles surface investigations, incidents and reviews that left no commit; search a transcript only when a title is too vague to place.
 
-Also run:
-```
-git log --author="$(git config user.name)" --since="$DAYS days ago" --no-merges --format="%s"
-```
+Done when every ticket ID and every untagged commit theme from the window is on one list with its status.
 
-## Step 2: Group and summarize
+## 2. Write
 
-- Group commits by theme (feature, fix, infra, cleanup, etc.)
-- Collapse related commits into a single bullet (e.g. 5 commits about retry logic = 1 bullet)
-- Drop noise: version bumps, typo fixes, trivial formatting — unless that's all there is
-
-## Step 3: Output the report
-
-Output using markdown
+Follow this sample exactly — plain text, pastes cleanly into Slack:
 
 ```
-*Week of <Mon DD - Mon DD>*
-_Repository Title_
-• <bullet>
-• <bullet>
-• <bullet>
+Finance Platform
+
+* FP-548 enforce plaid identity match at cash-out (MR open)
+* FP-551 hide cash advance transfers without external ids from users
+* FP-552 / FP-559 halve eslint run time, keep lint runs out of other agent worktrees
+* BE-59 cap prisma postgres pool with PRISMA_POOL_SIZE for workers and transaction-sync
+* web signup moved to new phone verify endpoints
+* staging db reset script
 ```
 
-Example 
+- **Sections** — one header line per product (Linear team or repo family), blank line, then `* ` bullets. One section is normal.
+- **Bullets** — ticket ID first, then a lowercase summary in the voice of the MR title, short enough for one Slack line. Untagged work gets the summary alone.
+- **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks.
+- **Status** — merged work is bare. Mark `(MR open)` for an unmerged MR and `WIP` for started work with no MR. A canceled ticket appears only inside a merged bullet that explains it (e.g. "covered by role guard").
+- **Order** — product work first, then incidents and security, then infra, tooling and docs.
 
-```
-Jan 1 - Jan 7
-
-Emailing Platform
-- Migrated psql subscription tables to small int channel ids for future-proofing
-- Implemented channel tuples on psql emails table + backfilled
-
-Marketing Platform
-- Worked with on simplifying prisma 7 + pglite setup
-- Fixed new repayment orchestration logic to correctly handle M-Th
-
-General
-- Debugged stripe scraper
-```
-
-Rules:
-- Use plain language, no jargon inflation ("added X" not "implemented a robust X solution")
-- No preamble, no sign-off, no "let me know if you have questions"
-- Just the list
+Output only the report: no preamble, date header or sign-off.
