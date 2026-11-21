@@ -66,11 +66,11 @@ Finance Platform
 - **Bullets** — ticket ID first, then a lowercase summary in the voice of the MR title, short enough for one Slack line. Untagged work gets the summary alone: untagged commits group into one bullet per piece of work, and a commit undone by its own revert, or an operational toggle (scaling an environment down and back up, reverting an auto-release), is dropped.
 - **Merge** related tickets into one bullet as `FP-A / FP-B / FP-C <combined summary>`: a docs cleanup series, an incident response, tooling tweaks. Only tickets with the same status merge (a folded canceled ticket aside); keep a related ticket with a different status as its own bullet next to them.
 - **Status** — as of now. Apply these top-down; the first match wins.
-  1. canceled ticket → when it had work in the window, fold it into the related bullet with the reason it was dropped in parentheses, as FP-564 in the sample; otherwise left out
-  2. ticket not started (Todo, Backlog) → left out
+  1. canceled ticket → when it had work in the window, fold it into the related bullet with the reason it was dropped in parentheses, as FP-564 in the sample; otherwise left out. Take the reason from its closed MR's last note (`glab mr view <iid> -R <project> --comments`) or the ticket's comments (`list_comments`); with neither, fold it without a reason.
+  2. ticket not started (Todo, Backlog) with no commit or MR → left out
   3. any MR still open → `(MR open)`
   4. merged MR, pushed straight to the default branch, completed ticket, or a ticketless session bullet → bare, even while Linear still says started
   5. anything else (a started ticket or branch work whose MRs, if any, are all closed) → `WIP`
 - **Order** — product work first, then incidents and security, then infra, tooling and docs.
 
-After the code block, add one line naming any source that could not be read (tool missing, MCP disconnected); when the window holds no work, say so and suggest last week.
+After the code block, add one closing line when there is something to flag: any source that could not be read (tool missing, MCP disconnected), and any mistagged ticket ID from Gather. When the window holds no work, say so and suggest last week.
