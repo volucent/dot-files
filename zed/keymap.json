@@ -62,6 +62,22 @@
     },
   },
   {
+    // While the git panel is showing in the left dock, cmd-2 closes it from
+    // anywhere, not only from inside it. Without this, cmd-2 from an editor
+    // or a commit opened from the History tab just moves focus back into the
+    // panel. These come after the plain Workspace / Pane bindings so they win.
+    "context": "Workspace && left_dock == GitPanel",
+    "bindings": {
+      "cmd-2": "workspace::ToggleLeftDock",
+    },
+  },
+  {
+    "context": "Workspace && left_dock == GitPanel > Pane",
+    "bindings": {
+      "cmd-2": "workspace::ToggleLeftDock",
+    },
+  },
+  {
     // JetBrains unmaps zoom and reuses shift-escape to hide the active dock.
     "context": "Dock || Workspace || OutlinePanel || ProjectPanel || CollabPanel",
     "bindings": {
