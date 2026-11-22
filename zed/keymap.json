@@ -1,6 +1,6 @@
 // Layered on top of the JetBrains base keymap (see settings.json).
-// JetBrains tool-window slots: cmd-1 project, cmd-2 agent, cmd-9 git history,
-// cmd-0 git panel.
+// JetBrains tool-window slots: cmd-1 project, cmd-2 and cmd-0 git panel,
+// cmd-3 and cmd-9 git history (Git Graph). The agent panel has no slot.
 [
   {
     // Zed's default cmd-0 (no context) resets the code font zoom, and it can
@@ -11,17 +11,36 @@
     },
   },
   {
-    // cmd-0 closes the git panel from anywhere inside it, the commit message
-    // editor included (JetBrains only binds this at the panel itself).
+    // cmd-0 / cmd-2 close the git panel from anywhere inside it, the commit
+    // message editor included (JetBrains only binds cmd-0 at the panel
+    // itself, and Zed's cmd-2 there switches to the History tab).
     "context": "GitPanel || GitPanel > Editor",
     "bindings": {
       "cmd-0": "workspace::CloseActiveDock",
+      "cmd-2": "workspace::CloseActiveDock",
+      "cmd-3": "git_graph::Open",
+    },
+  },
+  {
+    // JetBrains unbinds cmd-2 / cmd-3 in editor tabs (Pane); bind them there.
+    "context": "Pane",
+    "bindings": {
+      "cmd-2": "git_panel::ToggleFocus",
+      "cmd-3": "git_graph::Open",
+    },
+  },
+  {
+    // cmd-3 toggles Git Graph: it opens it everywhere else and closes it here.
+    "context": "GitGraph",
+    "bindings": {
+      "cmd-3": "pane::CloseActiveItem",
     },
   },
   {
     "context": "Workspace",
     "bindings": {
-      "cmd-2": "agent::ToggleFocus",
+      "cmd-2": "git_panel::ToggleFocus",
+      "cmd-3": "git_graph::Open",
       "cmd-9": "git_graph::Open",
       "ctrl-`": "terminal_panel::Toggle",
 
