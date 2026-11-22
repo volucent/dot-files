@@ -1,4 +1,4 @@
-"""Generate zed/themes/umber.json (brown-gray, low glare).
+"""Generate zed/themes/umber.json (Umber, Slate, Umber Light).
 
 Usage: python3 zed/gen-theme.py zed/themes/umber.json
 Prints WCAG contrast of each color against the editor background.
@@ -74,6 +74,57 @@ DARK = dict(
     term_white="#cdc3b5",
     term_bright_black="#6e655c",
     term_bright_white="#ddd4c7",
+)
+
+# Cool slate, built from ghostty/config so the editor matches the terminal.
+# Surfaces step out from the Ghostty background; accents are the Ghostty
+# palette (orange has no ANSI slot, so it sits between palette 1 and 3).
+SLATE = dict(
+    appearance="dark",
+    name="Slate",
+    chrome="#16191c",
+    panel="#181b1f",
+    bg="#1a1e22",          # ghostty background
+    elevated="#22272c",
+    active_line="#1f2328",
+    subheader="#252a30",
+    hover="#252a30",
+    selected="#2d333a",
+    active="#353c44",
+    border="#2a2f35",
+    border_variant="#22272c",
+    border_focused="#5c6370",  # palette 8
+    text="#b0ada8",        # ghostty foreground
+    text_muted="#8f8d89",
+    text_placeholder="#6b7079",
+    text_disabled="#4f545c",
+    line_number="#4a4f57",
+    line_number_active="#8f8d89",
+    comment="#7a808a",
+    punct="#8a8c8e",
+    red="#b08080",         # palette 1
+    orange="#c4a084",
+    yellow="#bfad88",      # palette 3
+    green="#8aaa96",       # palette 2
+    teal="#84a8ae",        # palette 6
+    blue="#8a9cba",        # palette 4
+    purple="#a898b8",      # palette 5
+    cursor="#f0c674",      # ghostty selection-background
+    diff_added="#7fd3cf",
+    diff_deleted="#f0a3cc",
+    diff_modified="#a8b2f0",
+    diff_line_alpha="30",
+    diff_word_alpha="0c",
+    selection_alpha="38",
+    usage_alpha="30",
+    bg_tint_alpha="26",
+    term_black="#1c1f24",
+    term_white="#c5c3bb",
+    term_bright_black="#5c6370",
+    term_bright_white="#dcdad4",
+    # Exact Ghostty palette 0-15 for the integrated terminal.
+    ansi=["#1c1f24", "#b08080", "#8aaa96", "#bfad88", "#8a9cba", "#a898b8", "#84a8ae", "#c5c3bb",
+          "#5c6370", "#bc8a8a", "#96b4a0", "#c8b898", "#9aa8c4", "#b0a4c0", "#8eb4b8", "#dcdad4"],
 )
 
 LIGHT = dict(
@@ -236,6 +287,11 @@ def style(p):
         s[f"terminal.ansi.{ansi}"] = p[key]
         s[f"terminal.ansi.bright_{ansi}"] = p[key]
         s[f"terminal.ansi.dim_{ansi}"] = a(p[key], "aa")
+    if "ansi" in p:
+        names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
+        for i, n in enumerate(names):
+            s[f"terminal.ansi.{n}"] = p["ansi"][i]
+            s[f"terminal.ansi.bright_{n}"] = p["ansi"][i + 8]
     for name, color in [
         ("conflict", p["orange"]), ("created", p["green"]), ("deleted", p["red"]),
         ("error", p["red"]), ("hidden", p["text_disabled"]), ("hint", p["text_placeholder"]),
@@ -319,10 +375,10 @@ theme = {
     "name": "Umber",
     "author": "Pasha Oakes",
     "themes": [{"name": p["name"], "appearance": p["appearance"], "style": style(p)}
-               for p in (DARK, LIGHT)],
+               for p in (DARK, SLATE, LIGHT)],
 }
 
-for p in (DARK, LIGHT):
+for p in (DARK, SLATE, LIGHT):
     report(p)
 json.dump(theme, open(sys.argv[1], "w"), indent=2)
 open(sys.argv[1], "a").write("\n")
