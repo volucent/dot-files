@@ -25,12 +25,12 @@
   "buffer_font_size": 12,
   "buffer_line_height": { "custom": 1.5 },
 
-  // Atkinson Hyperlegible Next: Braille Institute's low-vision typeface.
+  // UI uses Intel One Mono too, so code and chrome share one typeface.
   // Agent output is most of what I read, so it gets the largest size.
-  "ui_font_family": "Atkinson Hyperlegible Next",
+  "ui_font_family": "Intel One Mono",
   "ui_font_weight": 400,
   "ui_font_size": 12,
-  "agent_ui_font_family": "Atkinson Hyperlegible Next",
+  "agent_ui_font_family": "Intel One Mono",
   "agent_ui_font_size": 17,
   "agent_buffer_font_family": "Intel One Mono",
   "agent_buffer_font_size": 15,
