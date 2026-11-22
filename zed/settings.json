@@ -189,11 +189,12 @@
     "runnables": false,
     "breakpoints": false,
     "min_line_number_digits": 3,
-    // Wider diff stripe (default is ~6px at this font size).
+    // Wider diff stripe (default is ~4px at this font size).
     "git_gutter_width": { "custom": 14 },
   },
-  // One line of code around each hit in References, project search and
-  // diagnostics, so the list reads more like a list.
+  // One line of code around each hit in every multibuffer, so lists read more
+  // like lists: References, project search, diagnostics, and also the agent's
+  // Review Changes tab, the project diff and the commit view.
   "excerpt_context_lines": 1,
   "collaboration_panel": { "button": false },
   "debugger": { "button": false },

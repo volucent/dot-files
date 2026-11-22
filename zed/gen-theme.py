@@ -228,8 +228,9 @@ def style(p):
         "search.match_background": a(p["yellow"], "40"),
         "search.active_match_background": a(p["orange"], "66"),
         "panel.background": p["panel"],
-        "panel.focused_border": None,
-        "pane.focused_border": None,
+        # null would fall back to Zed's built-in blue, so give a palette color.
+        "panel.focused_border": p["border_focused"],
+        "pane.focused_border": p["border_focused"],
         "pane_group.border": p["border"],
         "scrollbar.thumb.background": a(p["text_muted"], "33"),
         "scrollbar.thumb.hover_background": a(p["text_muted"], "55"),
@@ -257,7 +258,8 @@ def style(p):
         "editor.document_highlight.bracket_background": a(p["orange"], "26"),
         "terminal.background": p["bg"],
         "terminal.foreground": p["text"],
-        "terminal.bright_foreground": p["term_bright_white"],
+        # Light themes need dark bright text, or it vanishes on the background.
+        "terminal.bright_foreground": p["text"] if p["appearance"] == "light" else p["term_bright_white"],
         "terminal.dim_foreground": p["text_muted"],
         "terminal.ansi.black": p["term_black"],
         "terminal.ansi.bright_black": p["term_bright_black"],

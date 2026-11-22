@@ -10,13 +10,15 @@
   {
     // Zoom code and UI together, and reset both. Zed's own zoom keys have no
     // context, which ranks deepest and beats any Workspace binding, so these
-    // must have none either to win in the terminal and panels. In the agent
-    // panel the code half resizes the agent fonts instead.
+    // must have none either to win in the terminal and panels. The agent
+    // panel, git commit box, commit window and Markdown preview take the code
+    // half for their own font size; cmd-0 resets that first (with focus in
+    // the view), then everything ResetAllZoom covers.
     "bindings": {
       "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
       "cmd-+": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
       "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
-      "cmd-0": "zed::ResetAllZoom",
+      "cmd-0": ["action::Sequence", [["zed::ResetBufferFontSize", { "persist": false }], ["zed::ResetAllZoom", { "persist": false }]]],
     },
   },
   {
@@ -27,6 +29,19 @@
       "cmd-+": "image_viewer::ZoomIn",
       "cmd--": "image_viewer::ZoomOut",
       "cmd-0": "image_viewer::ResetZoom",
+      // Zed's cmd-1 here is actual size; keep it a tab key like everywhere.
+      "cmd-1": ["pane::ActivateItem", 0],
+    },
+  },
+  {
+    // The Welcome tab opens recent projects on cmd-1..5; keep them tab keys.
+    "context": "Welcome",
+    "bindings": {
+      "cmd-1": ["pane::ActivateItem", 0],
+      "cmd-2": ["pane::ActivateItem", 1],
+      "cmd-3": ["pane::ActivateItem", 2],
+      "cmd-4": ["pane::ActivateItem", 3],
+      "cmd-5": ["pane::ActivateItem", 4],
     },
   },
   {
@@ -222,6 +237,21 @@
       // outranks the zoom block at the top.
       "cmd-_": "editor::FoldAll",
       "cmd-+": "editor::UnfoldAll",
+    },
+  },
+  {
+    // The Editor line moves above would shadow these views' own option-up /
+    // option-down (same depth, later in load order), so restore them.
+    "context": "CommitEditor > Editor",
+    "bindings": {
+      "alt-up": "git_panel::FocusChanges",
+    },
+  },
+  {
+    "context": "NotebookEditor > Editor",
+    "bindings": {
+      "alt-up": "notebook::MoveCellUp",
+      "alt-down": "notebook::MoveCellDown",
     },
   },
   {
