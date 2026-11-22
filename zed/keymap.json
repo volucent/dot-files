@@ -3,17 +3,34 @@
 // cmd-0 git panel.
 [
   {
+    // Zed's default cmd-0 (no context) resets the code font zoom, and it can
+    // fire instead of the git panel toggle. Drop it; `zed: reset all zoom`
+    // still does that from the command palette.
+    "bindings": {
+      "cmd-0": null,
+    },
+  },
+  {
+    // cmd-0 closes the git panel from anywhere inside it, the commit message
+    // editor included (JetBrains only binds this at the panel itself).
+    "context": "GitPanel || GitPanel > Editor",
+    "bindings": {
+      "cmd-0": "workspace::CloseActiveDock",
+    },
+  },
+  {
     "context": "Workspace",
     "bindings": {
       "cmd-2": "agent::ToggleFocus",
       "cmd-9": "git_graph::Open",
       "ctrl-`": "terminal_panel::Toggle",
 
-      // Zoom text (JetBrains puts fold/unfold here). In the agent panel these
-      // resize the agent fonts instead. cmd-0 stays the git panel.
-      "cmd-=": ["zed::IncreaseBufferFontSize", { "persist": false }],
-      "cmd-+": ["zed::IncreaseBufferFontSize", { "persist": false }],
-      "cmd--": ["zed::DecreaseBufferFontSize", { "persist": false }],
+      // Zoom code and UI together (JetBrains puts fold/unfold here). In the
+      // agent panel these resize the agent fonts instead. cmd-0 stays the git
+      // panel; `zed: reset all zoom` undoes it.
+      "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
+      "cmd-+": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
+      "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
 
       // New threads per agent.
       "cmd-alt-1": ["agent::NewExternalAgentThread", { "agent": "claude-acp" }],
@@ -62,8 +79,8 @@
 
       // JetBrains binds fold/unfold here at Editor depth, which outranks the
       // Workspace zoom bindings above, so repeat them.
-      "cmd-=": ["zed::IncreaseBufferFontSize", { "persist": false }],
-      "cmd--": ["zed::DecreaseBufferFontSize", { "persist": false }],
+      "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
+      "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
 
       // WebStorm's collapse/expand all: cmd-shift-minus / cmd-shift-equals
       // (Zed spells shifted keys by the character they type).

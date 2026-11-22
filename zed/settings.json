@@ -22,14 +22,14 @@
   // Intel One Mono: designed with and for low-vision developers.
   "buffer_font_family": "Intel One Mono",
   "buffer_font_weight": 500,
-  "buffer_font_size": 15,
+  "buffer_font_size": 12,
   "buffer_line_height": { "custom": 1.5 },
 
   // Atkinson Hyperlegible Next: Braille Institute's low-vision typeface.
   // Agent output is most of what I read, so it gets the largest size.
   "ui_font_family": "Atkinson Hyperlegible Next",
   "ui_font_weight": 400,
-  "ui_font_size": 16,
+  "ui_font_size": 12,
   "agent_ui_font_family": "Atkinson Hyperlegible Next",
   "agent_ui_font_size": 17,
   "agent_buffer_font_family": "Intel One Mono",
@@ -55,10 +55,10 @@
   // the right (same as `workspace: use agentic layout`).
   // ---------------------------------------------------------------------------
   "agent": {
-    "dock": "left",
+    "dock": "right",
     "flexible": true,
     "threads_sidebar": {
-      "position": "left",
+      "position": "right",
       "auto_open": true,
     },
     "limit_content_width": true,
@@ -120,7 +120,7 @@
     "auto_reveal_entries": true,
   },
   "git_panel": {
-    "dock": "right",
+    "dock": "left",
     // See at a glance when agents have dirtied the tree.
     "show_count_badge": true,
     "tree_view": true,
@@ -130,9 +130,9 @@
     "dock": "right",
   },
   "terminal": {
-    "dock": "bottom",
+    "dock": "left",
     "font_family": "Intel One Mono",
-    "font_size": 14,
+    "font_size": 12,
     "line_height": "standard",
     "cursor_shape": "bar",
     "blinking": "off",
