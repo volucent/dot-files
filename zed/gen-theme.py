@@ -113,7 +113,7 @@ SLATE = dict(
     diff_added="#7fd3cf",
     diff_deleted="#f0a3cc",
     diff_modified="#a8b2f0",
-    diff_line_alpha="30",
+    diff_line_alpha="2c",  # line + word tint keeps text >= 4.5:1 (4.59 added)
     diff_word_alpha="0c",
     selection_alpha="38",
     usage_alpha="30",

@@ -1,8 +1,8 @@
 // Zed settings for agent orchestration: agents drive, I review.
-// Tuned for light-sensitive eyes: warm brown-gray theme, no pure white or
-// black, low-vision fonts, no blinking.
+// Tuned for light-sensitive eyes: muted slate theme matching Ghostty, no pure
+// white or black, low-vision fonts, no blinking.
 //
-// Keys verified against Zed 1.26.2's assets/settings/default.json.
+// Keys verified against Zed 1.29.3's assets/settings/default.json.
 {
   "$schema": "zed://schemas/settings",
 
@@ -51,8 +51,9 @@
   "which_key": { "enabled": true, "delay_ms": 600 },
 
   // ---------------------------------------------------------------------------
-  // Agentic layout: agent panel + threads sidebar on the left, project/git on
-  // the right (same as `workspace: use agentic layout`).
+  // Layout: project, git and terminal docked left; agent panel, threads
+  // sidebar and outline on the right. Close to Zed's classic layout, not
+  // `workspace: use agentic layout` (agent left, project/git right).
   // ---------------------------------------------------------------------------
   "agent": {
     "dock": "right",

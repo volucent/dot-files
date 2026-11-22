@@ -8,15 +8,31 @@
 // has no slot. On the Voyager, hold Option on the other hand from the digit.
 [
   {
-    // Replaces Zed's code-only zoom reset (no context).
+    // Zoom code and UI together, and reset both. Zed's own zoom keys have no
+    // context, which ranks deepest and beats any Workspace binding, so these
+    // must have none either to win in the terminal and panels. In the agent
+    // panel the code half resizes the agent fonts instead.
     "bindings": {
+      "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
+      "cmd-+": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
+      "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
       "cmd-0": "zed::ResetAllZoom",
     },
   },
   {
+    // Images keep their own zoom (the block above would shadow it).
+    "context": "ImageViewer",
+    "bindings": {
+      "cmd-=": "image_viewer::ZoomIn",
+      "cmd-+": "image_viewer::ZoomIn",
+      "cmd--": "image_viewer::ZoomOut",
+      "cmd-0": "image_viewer::ResetZoom",
+    },
+  },
+  {
     // JetBrains puts tool windows on cmd-N (and clears the rest in Pane);
-    // take the digits back for tabs, in editors and everywhere else.
-    "context": "Workspace || Pane",
+    // take the digits back for tabs wherever there are tabs.
+    "context": "Pane",
     "bindings": {
       "cmd-1": ["pane::ActivateItem", 0],
       "cmd-2": ["pane::ActivateItem", 1],
@@ -27,7 +43,24 @@
       "cmd-7": ["pane::ActivateItem", 6],
       "cmd-8": ["pane::ActivateItem", 7],
       "cmd-9": "pane::ActivateLastItem",
-      "cmd-0": "zed::ResetAllZoom",
+    },
+  },
+  {
+    // Outside a pane (agent, git, project, outline panels) tab switching has
+    // nothing to act on, and Zed would fall through to the JetBrains panel
+    // toggles or to workspace::ActivatePane, which splits when the split is
+    // missing. A user null here hides those; the Pane binding above still wins.
+    "context": "Workspace",
+    "bindings": {
+      "cmd-1": null,
+      "cmd-2": null,
+      "cmd-3": null,
+      "cmd-4": null,
+      "cmd-5": null,
+      "cmd-6": null,
+      "cmd-7": null,
+      "cmd-8": null,
+      "cmd-9": null,
     },
   },
   {
@@ -38,12 +71,6 @@
       "cmd-1": null,
       "cmd-5": null,
       "cmd-7": null,
-    },
-  },
-  {
-    "context": "GitPanel",
-    "bindings": {
-      "cmd-0": "zed::ResetAllZoom",
     },
   },
   {
@@ -66,12 +93,6 @@
       "alt-7": "debug_panel::ToggleFocus",
       "alt-0": "workspace::ToggleAllDocks",
       "ctrl-`": "terminal_panel::Toggle",
-
-      // Zoom code and UI together (JetBrains puts fold/unfold here). In the
-      // agent panel these resize the agent fonts instead; cmd-0 resets.
-      "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
-      "cmd-+": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
-      "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
 
       // New threads per agent.
       "cmd-alt-1": ["agent::NewExternalAgentThread", { "agent": "claude-acp" }],
@@ -155,7 +176,8 @@
     },
   },
   {
-    "context": "Diagnostics > Editor",
+    // The view itself, so an empty diagnostics tab (no editor inside) closes too.
+    "context": "Diagnostics",
     "bindings": {
       "alt-6": "pane::CloseActiveItem",
     },
@@ -195,15 +217,20 @@
       // Split instead of JetBrains' inline assist.
       "cmd-\\": "pane::SplitRight",
 
-      // JetBrains binds fold/unfold here at Editor depth, which outranks the
-      // Workspace zoom bindings above, so repeat them.
-      "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
-      "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
-
       // WebStorm's collapse/expand all: cmd-shift-minus / cmd-shift-equals
-      // (Zed spells shifted keys by the character they type).
+      // (Zed spells shifted keys by the character they type). cmd-+ here
+      // outranks the zoom block at the top.
       "cmd-_": "editor::FoldAll",
       "cmd-+": "editor::UnfoldAll",
+    },
+  },
+  {
+    // Zed's cmd-alt-g toggles regex in project search; the cmd-alt-g h / g
+    // chords above would hold it back waiting for a second key.
+    "context": "ProjectSearchBar || ProjectSearchView",
+    "bindings": {
+      "cmd-alt-g h": null,
+      "cmd-alt-g g": null,
     },
   },
   {
@@ -220,10 +247,12 @@
     },
   },
   {
-    // Accept / reject all agent edits. Not bound inside the message editor,
-    // where cmd-shift-enter sends immediately and cmd-shift-backspace drops
-    // the first queued message.
-    "context": "AgentDiff || (Editor && editor_agent_diff) || AcpThread",
+    // Accept / reject all agent edits. `Editor && agent_diff` matches the
+    // review editors themselves (multi-file Review Changes and single files),
+    // so these outrank the editor's own cmd-shift-enter / -backspace there.
+    // Not bound inside the message editor, where cmd-shift-enter sends
+    // immediately and cmd-shift-backspace drops the first queued message.
+    "context": "AgentDiff || (Editor && agent_diff) || AcpThread",
     "bindings": {
       "cmd-shift-enter": "agent::KeepAll",
       "cmd-shift-backspace": "agent::RejectAll",
