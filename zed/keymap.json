@@ -3,8 +3,8 @@
 // cmd-N switches tabs, as in browsers and Ghostty: cmd-1..8 go to tab N in the
 // current split, cmd-9 to the last tab, cmd-0 resets zoom.
 // option-N opens and closes tool windows from anywhere (JetBrains' Windows and
-// Linux slots): 1 project, 2 git panel, 3 Git Graph, 4 terminal, 5 debug,
-// 6 diagnostics, 7 outline, 0 hides or restores every dock. The agent panel
+// Linux slots): 1 terminal, 2 project, 3 outline, 4 git panel, 5 Git Graph,
+// 6 diagnostics, 7 debug, 0 hides or restores every dock. The agent panel
 // has no slot. On the Voyager, hold Option on the other hand from the digit.
 [
   {
@@ -57,13 +57,13 @@
     "bindings": {
       // Tool windows. The dock rules below make these close the panel when
       // it is already showing, wherever focus is.
-      "alt-1": "project_panel::ToggleFocus",
-      "alt-2": "git_panel::ToggleFocus",
-      "alt-3": "git_graph::Open",
-      "alt-4": "terminal_panel::ToggleFocus",
-      "alt-5": "debug_panel::ToggleFocus",
+      "alt-1": "terminal_panel::ToggleFocus",
+      "alt-2": "project_panel::ToggleFocus",
+      "alt-3": "outline_panel::ToggleFocus",
+      "alt-4": "git_panel::ToggleFocus",
+      "alt-5": "git_graph::Open",
       "alt-6": "diagnostics::Deploy",
-      "alt-7": "outline_panel::ToggleFocus",
+      "alt-7": "debug_panel::ToggleFocus",
       "alt-0": "workspace::ToggleAllDocks",
       "ctrl-`": "terminal_panel::Toggle",
 
@@ -89,69 +89,69 @@
   // working; these come after the Workspace block so they win.
   {
     "context": "Workspace && left_dock == ProjectPanel",
-    "bindings": { "alt-1": "workspace::ToggleLeftDock" },
-  },
-  {
-    "context": "Workspace && left_dock == GitPanel",
     "bindings": { "alt-2": "workspace::ToggleLeftDock" },
   },
   {
-    "context": "Workspace && left_dock == TerminalPanel",
+    "context": "Workspace && left_dock == GitPanel",
     "bindings": { "alt-4": "workspace::ToggleLeftDock" },
   },
   {
-    "context": "Workspace && left_dock == DebugPanel",
-    "bindings": { "alt-5": "workspace::ToggleLeftDock" },
+    "context": "Workspace && left_dock == TerminalPanel",
+    "bindings": { "alt-1": "workspace::ToggleLeftDock" },
   },
   {
-    "context": "Workspace && left_dock == OutlinePanel",
+    "context": "Workspace && left_dock == DebugPanel",
     "bindings": { "alt-7": "workspace::ToggleLeftDock" },
   },
   {
-    "context": "Workspace && right_dock == ProjectPanel",
-    "bindings": { "alt-1": "workspace::ToggleRightDock" },
+    "context": "Workspace && left_dock == OutlinePanel",
+    "bindings": { "alt-3": "workspace::ToggleLeftDock" },
   },
   {
-    "context": "Workspace && right_dock == GitPanel",
+    "context": "Workspace && right_dock == ProjectPanel",
     "bindings": { "alt-2": "workspace::ToggleRightDock" },
   },
   {
-    "context": "Workspace && right_dock == TerminalPanel",
+    "context": "Workspace && right_dock == GitPanel",
     "bindings": { "alt-4": "workspace::ToggleRightDock" },
   },
   {
-    "context": "Workspace && right_dock == DebugPanel",
-    "bindings": { "alt-5": "workspace::ToggleRightDock" },
+    "context": "Workspace && right_dock == TerminalPanel",
+    "bindings": { "alt-1": "workspace::ToggleRightDock" },
   },
   {
-    "context": "Workspace && right_dock == OutlinePanel",
+    "context": "Workspace && right_dock == DebugPanel",
     "bindings": { "alt-7": "workspace::ToggleRightDock" },
   },
   {
-    "context": "Workspace && bottom_dock == ProjectPanel",
-    "bindings": { "alt-1": "workspace::ToggleBottomDock" },
+    "context": "Workspace && right_dock == OutlinePanel",
+    "bindings": { "alt-3": "workspace::ToggleRightDock" },
   },
   {
-    "context": "Workspace && bottom_dock == GitPanel",
+    "context": "Workspace && bottom_dock == ProjectPanel",
     "bindings": { "alt-2": "workspace::ToggleBottomDock" },
   },
   {
-    "context": "Workspace && bottom_dock == TerminalPanel",
+    "context": "Workspace && bottom_dock == GitPanel",
     "bindings": { "alt-4": "workspace::ToggleBottomDock" },
   },
   {
+    "context": "Workspace && bottom_dock == TerminalPanel",
+    "bindings": { "alt-1": "workspace::ToggleBottomDock" },
+  },
+  {
     "context": "Workspace && bottom_dock == DebugPanel",
-    "bindings": { "alt-5": "workspace::ToggleBottomDock" },
+    "bindings": { "alt-7": "workspace::ToggleBottomDock" },
   },
   {
     "context": "Workspace && bottom_dock == OutlinePanel",
-    "bindings": { "alt-7": "workspace::ToggleBottomDock" },
+    "bindings": { "alt-3": "workspace::ToggleBottomDock" },
   },
   {
     // Git Graph and diagnostics are tabs, not panels: close them from inside.
     "context": "GitGraph",
     "bindings": {
-      "alt-3": "pane::CloseActiveItem",
+      "alt-5": "pane::CloseActiveItem",
     },
   },
   {
