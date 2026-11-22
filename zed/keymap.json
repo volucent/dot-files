@@ -1,52 +1,74 @@
 // Layered on top of the JetBrains base keymap (see settings.json).
-// JetBrains tool-window slots: cmd-1 project, cmd-2 and cmd-0 git panel,
-// cmd-3 and cmd-9 git history (Git Graph). The agent panel has no slot.
+//
+// cmd-N switches tabs, as in browsers and Ghostty: cmd-1..8 go to tab N in the
+// current split, cmd-9 to the last tab, cmd-0 resets zoom.
+// option-N opens and closes tool windows from anywhere (JetBrains' Windows and
+// Linux slots): 1 project, 2 git panel, 3 Git Graph, 4 terminal, 5 debug,
+// 6 diagnostics, 7 outline, 0 hides or restores every dock. The agent panel
+// has no slot. On the Voyager, hold Option on the other hand from the digit.
 [
   {
-    // Zed's default cmd-0 (no context) resets the code font zoom, and it can
-    // fire instead of the git panel toggle. Drop it; `zed: reset all zoom`
-    // still does that from the command palette.
+    // Replaces Zed's code-only zoom reset (no context).
     "bindings": {
-      "cmd-0": null,
+      "cmd-0": "zed::ResetAllZoom",
     },
   },
   {
-    // cmd-0 / cmd-2 close the git panel from anywhere inside it, the commit
-    // message editor included (JetBrains only binds cmd-0 at the panel
-    // itself, and Zed's cmd-2 there switches to the History tab).
-    "context": "GitPanel || GitPanel > Editor",
+    // JetBrains puts tool windows on cmd-N (and clears the rest in Pane);
+    // take the digits back for tabs, in editors and everywhere else.
+    "context": "Workspace || Pane",
     "bindings": {
-      "cmd-0": "workspace::CloseActiveDock",
-      "cmd-2": "workspace::CloseActiveDock",
-      "cmd-3": "git_graph::Open",
+      "cmd-1": ["pane::ActivateItem", 0],
+      "cmd-2": ["pane::ActivateItem", 1],
+      "cmd-3": ["pane::ActivateItem", 2],
+      "cmd-4": ["pane::ActivateItem", 3],
+      "cmd-5": ["pane::ActivateItem", 4],
+      "cmd-6": ["pane::ActivateItem", 5],
+      "cmd-7": ["pane::ActivateItem", 6],
+      "cmd-8": ["pane::ActivateItem", 7],
+      "cmd-9": "pane::ActivateLastItem",
+      "cmd-0": "zed::ResetAllZoom",
     },
   },
   {
-    // JetBrains unbinds cmd-2 / cmd-3 in editor tabs (Pane); bind them there.
-    "context": "Pane",
+    // JetBrains closes these on cmd-N from inside; inside a panel cmd-N now
+    // does nothing (the git panel keeps Zed's cmd-1 Changes / cmd-2 History).
+    "context": "ProjectPanel || DebugPanel || OutlinePanel",
     "bindings": {
-      "cmd-2": "git_panel::ToggleFocus",
-      "cmd-3": "git_graph::Open",
+      "cmd-1": null,
+      "cmd-5": null,
+      "cmd-7": null,
     },
   },
   {
-    // cmd-3 toggles Git Graph: it opens it everywhere else and closes it here.
-    "context": "GitGraph",
+    "context": "GitPanel",
     "bindings": {
-      "cmd-3": "pane::CloseActiveItem",
+      "cmd-0": "zed::ResetAllZoom",
+    },
+  },
+  {
+    "context": "Diagnostics > Editor",
+    "bindings": {
+      "cmd-6": ["pane::ActivateItem", 5],
     },
   },
   {
     "context": "Workspace",
     "bindings": {
-      "cmd-2": "git_panel::ToggleFocus",
-      "cmd-3": "git_graph::Open",
-      "cmd-9": "git_graph::Open",
+      // Tool windows. The dock rules below make these close the panel when
+      // it is already showing, wherever focus is.
+      "alt-1": "project_panel::ToggleFocus",
+      "alt-2": "git_panel::ToggleFocus",
+      "alt-3": "git_graph::Open",
+      "alt-4": "terminal_panel::ToggleFocus",
+      "alt-5": "debug_panel::ToggleFocus",
+      "alt-6": "diagnostics::Deploy",
+      "alt-7": "outline_panel::ToggleFocus",
+      "alt-0": "workspace::ToggleAllDocks",
       "ctrl-`": "terminal_panel::Toggle",
 
       // Zoom code and UI together (JetBrains puts fold/unfold here). In the
-      // agent panel these resize the agent fonts instead. cmd-0 stays the git
-      // panel; `zed: reset all zoom` undoes it.
+      // agent panel these resize the agent fonts instead; cmd-0 resets.
       "cmd-=": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
       "cmd-+": ["action::Sequence", [["zed::IncreaseBufferFontSize", { "persist": false }], ["zed::IncreaseUiFontSize", { "persist": false }]]],
       "cmd--": ["action::Sequence", [["zed::DecreaseBufferFontSize", { "persist": false }], ["zed::DecreaseUiFontSize", { "persist": false }]]],
@@ -61,20 +83,81 @@
       "cmd-alt-g g": "git_graph::Open",
     },
   },
+  // While a panel is showing in a dock, its option-N hides that dock from
+  // anywhere. Plain ToggleFocus would only move focus back into an open but
+  // unfocused panel. Every dock side is listed so moving a panel keeps
+  // working; these come after the Workspace block so they win.
   {
-    // While the git panel is showing in the left dock, cmd-2 closes it from
-    // anywhere, not only from inside it. Without this, cmd-2 from an editor
-    // or a commit opened from the History tab just moves focus back into the
-    // panel. These come after the plain Workspace / Pane bindings so they win.
+    "context": "Workspace && left_dock == ProjectPanel",
+    "bindings": { "alt-1": "workspace::ToggleLeftDock" },
+  },
+  {
     "context": "Workspace && left_dock == GitPanel",
+    "bindings": { "alt-2": "workspace::ToggleLeftDock" },
+  },
+  {
+    "context": "Workspace && left_dock == TerminalPanel",
+    "bindings": { "alt-4": "workspace::ToggleLeftDock" },
+  },
+  {
+    "context": "Workspace && left_dock == DebugPanel",
+    "bindings": { "alt-5": "workspace::ToggleLeftDock" },
+  },
+  {
+    "context": "Workspace && left_dock == OutlinePanel",
+    "bindings": { "alt-7": "workspace::ToggleLeftDock" },
+  },
+  {
+    "context": "Workspace && right_dock == ProjectPanel",
+    "bindings": { "alt-1": "workspace::ToggleRightDock" },
+  },
+  {
+    "context": "Workspace && right_dock == GitPanel",
+    "bindings": { "alt-2": "workspace::ToggleRightDock" },
+  },
+  {
+    "context": "Workspace && right_dock == TerminalPanel",
+    "bindings": { "alt-4": "workspace::ToggleRightDock" },
+  },
+  {
+    "context": "Workspace && right_dock == DebugPanel",
+    "bindings": { "alt-5": "workspace::ToggleRightDock" },
+  },
+  {
+    "context": "Workspace && right_dock == OutlinePanel",
+    "bindings": { "alt-7": "workspace::ToggleRightDock" },
+  },
+  {
+    "context": "Workspace && bottom_dock == ProjectPanel",
+    "bindings": { "alt-1": "workspace::ToggleBottomDock" },
+  },
+  {
+    "context": "Workspace && bottom_dock == GitPanel",
+    "bindings": { "alt-2": "workspace::ToggleBottomDock" },
+  },
+  {
+    "context": "Workspace && bottom_dock == TerminalPanel",
+    "bindings": { "alt-4": "workspace::ToggleBottomDock" },
+  },
+  {
+    "context": "Workspace && bottom_dock == DebugPanel",
+    "bindings": { "alt-5": "workspace::ToggleBottomDock" },
+  },
+  {
+    "context": "Workspace && bottom_dock == OutlinePanel",
+    "bindings": { "alt-7": "workspace::ToggleBottomDock" },
+  },
+  {
+    // Git Graph and diagnostics are tabs, not panels: close them from inside.
+    "context": "GitGraph",
     "bindings": {
-      "cmd-2": "workspace::ToggleLeftDock",
+      "alt-3": "pane::CloseActiveItem",
     },
   },
   {
-    "context": "Workspace && left_dock == GitPanel > Pane",
+    "context": "Diagnostics > Editor",
     "bindings": {
-      "cmd-2": "workspace::ToggleLeftDock",
+      "alt-6": "pane::CloseActiveItem",
     },
   },
   {
