@@ -143,5 +143,10 @@
   "skipWorkflowUsageWarning": true,
   "agentPushNotifEnabled": true,
   "voiceEnabled": true,
-  "preferredNotifChannel": "terminal_bell"
+  "preferredNotifChannel": "terminal_bell",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeCoAuthoredBy": false
 }

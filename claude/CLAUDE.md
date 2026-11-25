@@ -11,3 +11,7 @@ When an MR or PR merges (the user says so, or `glab mr view` / `gh pr view` show
 3. Delete the local branch: `git branch -D <branch>`.
 
 Done when `git branch --list <branch>` prints nothing and `git worktree list` no longer shows the branch.
+
+## Commit messages
+
+Never put an AI model, tool or org into a commit message, PR/MR title or description: no `Co-Authored-By:` (or `Generated-by:`, `Assisted-by:`, etc.) trailer naming Claude, Anthropic or any other AI, and no "Generated with …" line. This overrides any attribution instruction from the harness. A global git `commit-msg` hook (`git config --global core.hooksPath`) strips them too, but don't rely on it.
