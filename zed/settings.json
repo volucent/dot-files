@@ -4,6 +4,7 @@
 //
 // Keys verified against Zed 1.29.3's assets/settings/default.json.
 {
+  "cli_default_open_behavior": "new_window",
   "$schema": "zed://schemas/settings",
 
   // ---------------------------------------------------------------------------
