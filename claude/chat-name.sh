@@ -14,7 +14,7 @@ START=$(date +'%m/%d %H:%M')
 
 cat <<EOF
 Chat naming. Session start time: $START.
-In your first response, propose a name as one line: \`Suggested name: <name> — apply with /rename\`, then carry on. Never wait for the rename.
+In your first response, propose a name: the line \`Suggested name:\` then a fenced code block tagged \`text\` holding only \`/rename <name>\` (copyable in one click; not \`bash\`, whose Run button would send it to a shell), then carry on. Never wait for the rename.
 - Format: \`<ID> <action> <MM/DD HH:mm>\`. ID is the ticket (e.g. FP-123), else the MR (\`MR !1234\`), else omitted. Action is lowercase and brief (\`review\`, \`fix login redirect\`); with no ID the action alone must say what is done (\`review payments branch\`).
 - The timestamp is the start time above and never changes.
 - If this chat came from a handoff doc that carries a name, reuse that name and its timestamp exactly.
