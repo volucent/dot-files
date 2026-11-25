@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Global commit-msg hook (via `git config --global core.hooksPath`).
+# Strips AI attribution from every commit message, then runs the repo's own commit-msg hook.
+# Removed:
+#   - attribution trailers (Co-Authored-By, Generated-by, Assisted-by, ...) that name an AI model,
+#     tool or org; human co-authors are kept
+#   - "Generated with/by <AI tool>" lines, like Claude Code's "🤖 Generated with [Claude Code](...)"
+# Lines that only mention an AI as a topic ("Update CLAUDE.md") are kept.
+
+msg_file="$1"
+
+# POSIX ERE for macOS awk: no \b, so word edges are spelled out.
+w='(^|[^a-z0-9])'
+e='([^a-z0-9]|$)'
+ai="claude|anthropic|${w}(opus|sonnet|haiku|fable)${e}|openai|chatgpt|gpt-?[0-9o]|codex|copilot|cursor[ .-]?(ai|agent|com)|${w}cursor${e}|gemini|aider|${w}devin${e}|windsurf|codeium|tabnine|amazon q|codewhisperer|llama|mistral|grok|deepseek|qwen|${w}kiro${e}|${w}cline${e}|roo ?code|${w}(ai|llm)${e}"
+trailer='^[[:space:]]*(co-?authored-?by|generated-?by|generated-?with|assisted-?by|ai-?assisted(-?by)?|ai-?generated(-?by)?|written-?by|created-?by|made-?with|helped-?by|signed-?off-?by|authored-?by|tool|model)[[:space:]]*:'
+generated='^[[:space:]]*(🤖[[:space:]]*)?(generated|created|written|authored|made|built|produced|assisted)[[:space:]]+(with|by|using|via|in)[[:space:]]'
+
+if [ -f "$msg_file" ]; then
+  tmp="$(mktemp)"
+  removed="$(mktemp)"
+  LC_ALL=en_US.UTF-8 awk -v ai="$ai" -v trailer="$trailer" -v generated="$generated" -v removed="$removed" '
+    {
+      l = tolower($0)
+      drop = 0
+      if (l ~ trailer && l ~ ai) drop = 1
+      else if (l ~ generated && l ~ ai) drop = 1
+      else if (l ~ /^[[:space:]]*🤖/ && l ~ ai) drop = 1
+      if (drop) { print > removed; next }
+      lines[++n] = $0
+    }
+    END {
+      while (n > 0 && lines[n] ~ /^[[:space:]]*$/) n--
+      for (i = 1; i <= n; i++) print lines[i]
+    }
+  ' "$msg_file" > "$tmp"
+
+  if [ -s "$removed" ]; then
+    cat "$tmp" > "$msg_file"
+    echo "commit-msg: stripped AI attribution:" >&2
+    sed 's/^/  - /' "$removed" >&2
+  fi
+  rm -f "$tmp" "$removed"
+fi
+
+exec "$(dirname "$0")/_run-local" commit-msg "$@"

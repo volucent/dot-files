@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# A global core.hooksPath makes git ignore each repo's own .git/hooks. Every hook in this
+# folder ends by calling this, so the repo's own hook (if any) still runs with the same args
+# and stdin.
+# Usage: _run-local <hook-name> [args...]
+
+name="$1"
+shift
+
+common_dir="$(git rev-parse --git-common-dir 2>/dev/null)" || exit 0
+local_hook="$common_dir/hooks/$name"
+
+# Don't loop if someone points a repo's hooks at this folder.
+if [ -x "$local_hook" ] && [ "$(cd "$(dirname "$local_hook")" && pwd -P)" != "$(cd "$(dirname "$0")" && pwd -P)" ]; then
+  exec "$local_hook" "$@"
+fi
+exit 0

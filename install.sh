@@ -61,6 +61,10 @@ fc-cache -f
 # Kitty
 link kitty/kitty.conf ~/.config/kitty/kitty.conf
 
+# Git: global hooks (commit-msg strips AI attribution; others pass through to each repo's own hooks)
+link git/hooks ~/.config/git/hooks
+git config --global core.hooksPath ~/.config/git/hooks
+
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
 link claude/CLAUDE.md ~/.claude/CLAUDE.md

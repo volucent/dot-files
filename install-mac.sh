@@ -70,6 +70,10 @@ link zed/themes/umber.json ~/.config/zed/themes/umber.json
 # Zsh (work config; source from your personal ~/.zshrc)
 link .zshrc-trend-mac ~/.zshrc-trend
 
+# Git: global hooks (commit-msg strips AI attribution; others pass through to each repo's own hooks)
+link git/hooks ~/.config/git/hooks
+git config --global core.hooksPath ~/.config/git/hooks
+
 # Claude Code
 link claude/settings.json ~/.claude/settings.json
 link claude/CLAUDE.md ~/.claude/CLAUDE.md
